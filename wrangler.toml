@@ -1,0 +1,14 @@
+name = "leasy-invoice-generator"
+main = "dist-server/index.js"
+compatibility_date = "2024-01-01"
+
+[build]
+command = "npm run build"
+
+[site]
+bucket = "./dist"
+
+# Uncomment and configure for production
+# [env.production]
+# vars = { ENVIRONMENT = "production" }
+# kv_namespaces = []

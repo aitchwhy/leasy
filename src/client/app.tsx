@@ -1,25 +1,56 @@
-import { use, Suspense } from 'react'
-import { hc } from 'hono/client'
-import type { InferResponseType } from 'hono/client'
-import type { AppType } from '../server/api'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Toaster } from '@/client/components/ui/sonner'
+import { LoginPage } from './pages/login'
+import { DashboardPage } from './pages/dashboard'
+import { InvoiceFormPage } from './pages/invoice-form'
+import { useSession } from './lib/auth'
 
-const client = hc<AppType>('/api')
+const queryClient = new QueryClient()
 
-const fetchData = async () => {
-  const data = await client.index.$get({ query: { name: 'Hono' } })
-  return data.json()
-}
+function AppRouter() {
+  const { data: session, isPending } = useSession()
+  const pathname = window.location.pathname
 
-const Component = ({ promise }: { promise: Promise<InferResponseType<typeof client.index.$get>> }) => {
-  const data = use(promise)
-  return <h2 className="text-2xl">{data.message}</h2>
+  if (isPending) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading...</div>
+      </div>
+    )
+  }
+
+  // Public routes
+  if (pathname === '/login') {
+    if (session?.user) {
+      window.location.href = '/dashboard'
+      return null
+    }
+    return <LoginPage />
+  }
+
+  // Protected routes
+  if (!session?.user) {
+    window.location.href = '/login'
+    return null
+  }
+
+  switch (pathname) {
+    case '/':
+    case '/dashboard':
+      return <DashboardPage />
+    case '/invoices/new':
+      return <InvoiceFormPage />
+    default:
+      return <DashboardPage />
+  }
 }
 
 const App = () => {
   return (
-    <Suspense fallback={'loading...'}>
-      <Component promise={fetchData()} />
-    </Suspense>
+    <QueryClientProvider client={queryClient}>
+      <AppRouter />
+      <Toaster />
+    </QueryClientProvider>
   )
 }
 
