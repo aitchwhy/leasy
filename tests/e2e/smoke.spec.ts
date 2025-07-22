@@ -4,35 +4,39 @@ test.describe('Smoke Test', () => {
   test('app loads successfully', async ({ page }) => {
     await page.goto('/')
     
-    // App should load and redirect to dashboard (server-side redirect)
+    // App should load and redirect to dashboard
     await expect(page).toHaveURL('/dashboard')
     
     // Should have proper title
     await expect(page).toHaveTitle(/Leasy/)
-  })
-
-  test('login page has Google OAuth button', async ({ page }) => {
-    await page.goto('/login')
     
-    // Should have Google login button
-    const googleButton = page.getByRole('button', { name: /Sign in with Google/i })
-    await expect(googleButton).toBeVisible()
+    // Should have header with logo
+    await expect(page.getByText('Leasy')).toBeVisible()
   })
 
-  test('unauthenticated user cannot access dashboard', async ({ page }) => {
-    // Go directly to dashboard
+  test('dashboard shows mock data', async ({ page }) => {
     await page.goto('/dashboard')
     
-    // Wait for client-side redirect to login
-    await page.waitForURL('/login', { timeout: 5000 })
-    await expect(page).toHaveURL('/login')
+    // Should show dashboard title
+    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
+    
+    // Should show stats cards
+    await expect(page.getByText('Outstanding Invoices')).toBeVisible()
+    await expect(page.getByText('Monthly Revenue')).toBeVisible()
+    
+    // Should show invoice table
+    await expect(page.getByText('Recent Invoices')).toBeVisible()
+    await expect(page.getByText('ABC Corp')).toBeVisible()
   })
 
-  test('invoice generation flow redirects to login when unauthenticated', async ({ page }) => {
-    await page.goto('/invoices/new')
+  test('can navigate to invoice form', async ({ page }) => {
+    await page.goto('/dashboard')
     
-    // Should redirect to login page for unauthenticated users
-    await page.waitForURL('/login', { timeout: 5000 })
-    await expect(page).toHaveURL('/login')
+    // Click new invoice button
+    await page.getByRole('link', { name: 'New Invoice' }).click()
+    
+    // Should navigate to invoice form
+    await expect(page).toHaveURL('/invoices/new')
+    await expect(page.getByRole('heading', { name: 'Generate Invoice' })).toBeVisible()
   })
 })

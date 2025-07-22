@@ -15,8 +15,7 @@ import {
   Users, 
   Building2, 
   DollarSign,
-  Plus,
-  ArrowRight
+  Plus
 } from 'lucide-react'
 
 export function DashboardPage() {
@@ -47,7 +46,7 @@ export function DashboardPage() {
     <Layout>
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground">Welcome back! Here's an overview of your properties.</p>
         </div>
 
@@ -98,78 +97,42 @@ export function DashboardPage() {
           </Card>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                Generate Invoice
-                <Plus className="h-5 w-5" />
-              </CardTitle>
-              <CardDescription>Create a new invoice for a tenant</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full" onClick={() => window.location.href = '/invoices/new'}>
-                Create Invoice
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                Add Tenant
-                <Users className="h-5 w-5" />
-              </CardTitle>
-              <CardDescription>Register a new tenant</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button variant="outline" className="w-full">
-                Add Tenant
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                View All Invoices
-                <ArrowRight className="h-5 w-5" />
-              </CardTitle>
-              <CardDescription>See all invoices and their status</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button variant="outline" className="w-full">
-                View Invoices
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Recent Invoices */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Invoices</CardTitle>
-            <CardDescription>Your latest invoice activity</CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Recent Invoices</CardTitle>
+                <CardDescription>Your latest invoice activity</CardDescription>
+              </div>
+              <Button asChild size="sm">
+                <a href="/invoices/new">
+                  <Plus className="mr-2 h-4 w-4" />
+                  New Invoice
+                </a>
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Invoice ID</TableHead>
                   <TableHead>Tenant</TableHead>
+                  <TableHead>Amount</TableHead>
                   <TableHead>Date</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead className="text-right">Status</TableHead>
+                  <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {recentInvoices.map((invoice) => (
                   <TableRow key={invoice.id}>
-                    <TableCell className="font-medium">{invoice.tenant}</TableCell>
+                    <TableCell className="font-medium">#{invoice.id}</TableCell>
+                    <TableCell>{invoice.tenant}</TableCell>
+                    <TableCell>${invoice.amount.toLocaleString()}</TableCell>
                     <TableCell>{invoice.date}</TableCell>
-                    <TableCell className="text-right">${invoice.amount.toLocaleString()}</TableCell>
-                    <TableCell className="text-right">
-                      <Badge variant={getStatusVariant(invoice.status) as any}>
+                    <TableCell>
+                      <Badge variant={getStatusVariant(invoice.status)}>
                         {invoice.status}
                       </Badge>
                     </TableCell>

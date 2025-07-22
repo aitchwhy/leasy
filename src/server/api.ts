@@ -1,15 +1,11 @@
 import { Hono } from 'hono'
-import buildings from './routes/buildings'
-import tenants from './routes/tenants'
-import invoices from './routes/invoices'
 
 const app = new Hono()
 
-// Mount routes
-const routes = app
-  .route('/buildings', buildings)
-  .route('/tenants', tenants)
-  .route('/invoices', invoices)
+// Simple health check endpoint
+app.get('/health', (c) => {
+  return c.json({ status: 'ok' })
+})
 
-export default routes
-export type AppType = typeof routes
+export default app
+export type AppType = typeof app
