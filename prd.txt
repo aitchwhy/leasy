@@ -1,0 +1,130 @@
+---
+#taskmaster: prd
+tag: demo-mvp
+title: Property-Finance Demo MVP — **Technical Design & Functional Spec**
+model: claude-code/opus
+version: 0.4
+updated: 2025-07-23
+---
+
+## 1 · Functional Requirements (✱ = minimum testable behaviour)
+
+### 1.1 Core Use-Cases & Endpoints
+
+| ID | Endpoint | Method | Description | Request Body / Query | Response (200/201) | Error Codes |
+|----|----------|--------|-------------|----------------------|--------------------|-------------|
+| **FR-01✱** | `/buildings` | **GET** | Return all buildings visible to the current owner. | — | `[{ building_id, name, address }]` | 500 (server) |
+| **FR-02✱** | `/leases?building_id` | GET | Return active leases for a building. | `building_id` query | `[{ lease_id, tenant_name, rent_amount }]` | 404 (unknown building) |
+| **FR-03✱** | `/invoices` | **POST** | Generate an invoice for a lease. | `{ lease_id, issue_date?, due_date? }` | `{ invoice_id }` (201) | 422 (validation), 404 (unknown lease) |
+| **FR-04** | `/invoices/:id` | GET | Fetch single invoice (for future PDF). | — | `{ invoice_id, lines[] }` | 404 |
+| **FR-05** | `/healthz` | GET | Liveness probe. | — | `ok` | — |
+
+**Acceptance Criteria (BDD):**
+
+* **Given** the API is running in prod **when** a GET is made to `/buildings` **then** HTTP 200 + JSON array length ≥ 1.
+* **Given** a valid `lease_id` **when** POST `/invoices` **then** HTTP 201 with non-null `invoice_id`.
+* **Given** an invalid body (missing `lease_id`) **when** POST `/invoices` **then** HTTP 422.
+* UI must render building list within **3 s** p95 and show a toast on successful invoice generation.
+
+> *All acceptance tests are automated via Vitest (unit) and Playwright (e2e) hitting **production** URLs.*
+
+---
+
+## 2 · Technical Architecture
+
+### 2.1 C4 Container View
+
+![C4 Diagram](../../c4.png "Containers")
+
+| Container | Tech / Runtime | Responsibilities | Notes |
+|-----------|----------------|------------------|-------|
+| **Web SPA** | React 18 + Vite 5 (TypeScript) deployed on **Vercel** | UI, routing, fetch API, optimistic updates, toast notifications. | Public URL: `https://<project>.vercel.app` |
+| **API Worker** | Hono 4.x (TypeScript) on **Cloudflare Workers** | Expose REST endpoints, hold in-memory arrays for buildings, leases, invoices. | Public URL: `https://demo-api.<hash>.workers.dev` |
+| **(future) DB** | Postgres (RDS) | Persistent storage. | **Not in MVP** |
+| **(future) Storage** | S3 bucket (receipts) | PDF & attachment storage. | **Not in MVP** |
+| **Observability** | Cloudflare `wrangler tail` + Dashboard | Request/response logs; 4xx/5xx counters. | Upgrade to OTEL later |
+
+### 2.2 Runtime Environment & Deploy Steps
+
+```mermaid
+sequenceDiagram
+    participant DevLaptop
+    participant GitHub
+    participant Vercel
+    participant CF as Cloudflare Workers
+
+    DevLaptop->>GitHub: git push main
+    GitHub-->>Vercel: Webhook – build & deploy SPA
+    GitHub-->>CF: GitHub Action ⇒ wrangler publish API
+    Vercel-->>DevLaptop: deployment url ✚ commit sha
+    CF-->>DevLaptop: wrangler publish log + api url
+
+	•	Auth: none (public demo).
+	•	CORS: Worker allows origins matching *.vercel.app.
+	•	Env vars:
+	•	SPA: VITE_API_URL=https://demo-api…workers.dev
+	•	Worker: none required for MVP.
+
+2.3 Data Model (ERD Extract)
+
+Arrays back these entities during MVP; each is instantiated from seed JSON at boot.
+
+2.4 Build & Test Pipeline
+
+CI (GitHub Actions)
+├─🤖 Lint          (ESLint + Prettier)
+├─🧪 Unit Tests    (Vitest)
+├─🔧 Build
+│   ├─ SPA (Vite build)
+│   └─ API (TypeScript → Worker bundle)
+├─🚀 Deploy
+│   ├─ wrangler publish  (# API)
+│   └─ Vercel deploy     (# SPA)
+└─🎭 Playwright e2e (prod URLs)
+
+Pipeline fails if any step non-zero or e2e test fails.
+
+⸻
+
+3 · Detailed Component Design
+
+Component	Interfaces	Key Logic	Future Extension
+api/routes/buildings.ts	GET /buildings	Returns static array.	Replace with DB query + tenant filter.
+api/routes/invoices.ts	POST /invoices	Validates body (Zod), pushes object to invoices[].	Add Stripe webhook + PDF gen.
+ui/hooks/useBuildings.ts	fetch('${API}/buildings')	React Query cache, stale-while-revalidate.	Pagination, search.
+ui/components/InvoiceButton.tsx	Calls POST /invoices; shows toast.	Disable on loading/error; optimistic row insert.
+
+
+⸻
+
+4 · Security & Compliance Notes (MVP)
+	•	Secrets: none stored; no DB creds.
+	•	Headers: Worker adds X-Content-Type-Options: nosniff and CORS.
+	•	Rate limiting / auth: deferred.
+
+⸻
+
+5 · Glossary
+
+Term	Meaning
+Worker	Edge-deployed JS function on Cloudflare Workers runtime.
+In-memory	Data held in module-scope arrays; cleared on redeploy.
+Toast	UI pop-up confirming success or error.
+
+
+⸻
+
+6 · Open Technical Decisions
+	1.	Persist demo data between deployments? (If yes, use Workers KV).
+	2.	Use TypeSpec code-gen immediately or after MVP?
+
+⸻
+
+
+This trimmed PRD focuses **only** on:
+
+* **Functional Requirements** – endpoints, acceptance tests, error semantics.
+* **Technical Architecture** – containers, runtime flow, build pipeline, core components.
+
+Everything else (personas, timeline, tasks, marketing copy) has been removed per request.
+Save the file and run **Task Master** to explode it into actionable tasks for Claude Code Opus 4.

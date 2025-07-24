@@ -20,7 +20,9 @@
       "Bash(npm run test:*)",
       "Bash(npm run build:*)",
       "Bash(grep:*)",
-      "Bash(timeout 10 npm run dev)"
+      "Bash(timeout 10 npm run dev)",
+      "Bash(node:*)",
+      "Bash(cat:*)"
     ],
     "deny": []
   }

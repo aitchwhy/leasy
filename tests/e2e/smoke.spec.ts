@@ -32,8 +32,8 @@ test.describe('Smoke Test', () => {
   test('can navigate to invoice form', async ({ page }) => {
     await page.goto('/dashboard')
     
-    // Click new invoice button
-    await page.getByRole('link', { name: 'New Invoice' }).click()
+    // Click new invoice button in the card (not in header)
+    await page.getByRole('main').getByRole('link', { name: 'New Invoice' }).click()
     
     // Should navigate to invoice form
     await expect(page).toHaveURL('/invoices/new')
