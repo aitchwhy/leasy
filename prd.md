@@ -59,11 +59,11 @@ sequenceDiagram
     Vercel-->>DevLaptop: deployment url ✚ commit sha
     CF-->>DevLaptop: wrangler publish log + api url
 
-	•	Auth: none (public demo).
-	•	CORS: Worker allows origins matching *.vercel.app.
-	•	Env vars:
-	•	SPA: VITE_API_URL=https://demo-api…workers.dev
-	•	Worker: none required for MVP.
+ • Auth: none (public demo).
+ • CORS: Worker allows origins matching *.vercel.app.
+ • Env vars:
+ • SPA: VITE_API_URL=https://demo-api…workers.dev
+ • Worker: none required for MVP.
 
 2.3 Data Model (ERD Extract)
 
@@ -88,35 +88,35 @@ Pipeline fails if any step non-zero or e2e test fails.
 
 3 · Detailed Component Design
 
-Component	Interfaces	Key Logic	Future Extension
-api/routes/buildings.ts	GET /buildings	Returns static array.	Replace with DB query + tenant filter.
-api/routes/invoices.ts	POST /invoices	Validates body (Zod), pushes object to invoices[].	Add Stripe webhook + PDF gen.
-ui/hooks/useBuildings.ts	fetch('${API}/buildings')	React Query cache, stale-while-revalidate.	Pagination, search.
-ui/components/InvoiceButton.tsx	Calls POST /invoices; shows toast.	Disable on loading/error; optimistic row insert.
+Component Interfaces Key Logic Future Extension
+api/routes/buildings.ts GET /buildings Returns static array. Replace with DB query + tenant filter.
+api/routes/invoices.ts POST /invoices Validates body (Zod), pushes object to invoices[]. Add Stripe webhook + PDF gen.
+ui/hooks/useBuildings.ts fetch('${API}/buildings') React Query cache, stale-while-revalidate. Pagination, search.
+ui/components/InvoiceButton.tsx Calls POST /invoices; shows toast. Disable on loading/error; optimistic row insert.
 
 
 ⸻
 
 4 · Security & Compliance Notes (MVP)
-	•	Secrets: none stored; no DB creds.
-	•	Headers: Worker adds X-Content-Type-Options: nosniff and CORS.
-	•	Rate limiting / auth: deferred.
+ • Secrets: none stored; no DB creds.
+ • Headers: Worker adds X-Content-Type-Options: nosniff and CORS.
+ • Rate limiting / auth: deferred.
 
 ⸻
 
 5 · Glossary
 
-Term	Meaning
-Worker	Edge-deployed JS function on Cloudflare Workers runtime.
-In-memory	Data held in module-scope arrays; cleared on redeploy.
-Toast	UI pop-up confirming success or error.
+Term Meaning
+Worker Edge-deployed JS function on Cloudflare Workers runtime.
+In-memory Data held in module-scope arrays; cleared on redeploy.
+Toast UI pop-up confirming success or error.
 
 
 ⸻
 
 6 · Open Technical Decisions
-	1.	Persist demo data between deployments? (If yes, use Workers KV).
-	2.	Use TypeSpec code-gen immediately or after MVP?
+ 1. Persist demo data between deployments? (If yes, use Workers KV).
+ 2. Use TypeSpec code-gen immediately or after MVP?
 
 ⸻
 
