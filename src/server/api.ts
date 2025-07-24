@@ -1,13 +1,28 @@
-import { Hono } from 'hono'
-import { z } from 'zod'
-import { store, generateId } from './db/store'
-import { 
-  CreateInvoiceRequestSchema, 
-  LeaseQuerySchema,
-  type Invoice 
+import {
+    CreateInvoiceRequestSchema,
+    LeaseQuerySchema,
+    type Invoice
 } from '@/shared/types'
+import { Hono } from 'hono'
+import authRoutes from './api/auth'
+import dashboardRoutes from './api/dashboard'
+import invoicesRoutes from './api/invoices'
+import tenantsRoutes from './api/tenants'
+import { generateId, store } from './db/store'
 
 const app = new Hono()
+
+// Mount auth routes
+app.route('/auth', authRoutes)
+
+// Mount dashboard routes
+app.route('/dashboard', dashboardRoutes)
+
+// Mount tenants routes
+app.route('/tenants', tenantsRoutes)
+
+// Mount invoices routes
+app.route('/invoices', invoicesRoutes)
 
 // Health check endpoints
 app.get('/health', (c) => {
@@ -33,19 +48,19 @@ app.get('/leases', (c) => {
   try {
     const query = c.req.query()
     const parsed = LeaseQuerySchema.safeParse(query)
-    
+
     if (!parsed.success) {
       return c.json({ error: 'building_id is required' }, 400)
     }
-    
+
     const { building_id } = parsed.data
-    
+
     // Check if building exists
     const building = store.buildings.getById(building_id)
     if (!building) {
       return c.json({ error: 'Unknown building' }, 404)
     }
-    
+
     const leases = store.leases.getByBuildingId(building_id)
     return c.json(leases)
   } catch (error) {
@@ -58,27 +73,27 @@ app.post('/invoices', async (c) => {
   try {
     const body = await c.req.json()
     const parsed = CreateInvoiceRequestSchema.safeParse(body)
-    
+
     if (!parsed.success) {
-      return c.json({ 
-        error: 'Validation failed', 
-        details: parsed.error.flatten() 
+      return c.json({
+        error: 'Validation failed',
+        details: parsed.error.flatten()
       }, 422)
     }
-    
+
     const { lease_id, issue_date, due_date } = parsed.data
-    
+
     // Check if lease exists
     const lease = store.leases.getById(lease_id)
     if (!lease) {
       return c.json({ error: 'Unknown lease' }, 404)
     }
-    
+
     // Generate invoice
     const today = new Date().toISOString().split('T')[0]
     const dueIn30Days = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
       .toISOString().split('T')[0]
-    
+
     const invoice: Invoice = {
       invoice_id: generateId('inv'),
       lease_id: lease_id,
@@ -93,9 +108,9 @@ app.post('/invoices', async (c) => {
       ],
       total_amount: lease.rent_amount
     }
-    
+
     store.invoices.create(invoice)
-    
+
     return c.json({ invoice_id: invoice.invoice_id }, 201)
   } catch (error) {
     return c.json({ error: 'Internal server error' }, 500)
@@ -107,11 +122,11 @@ app.get('/invoices/:id', (c) => {
   try {
     const id = c.req.param('id')
     const invoice = store.invoices.getById(id)
-    
+
     if (!invoice) {
       return c.json({ error: 'Invoice not found' }, 404)
     }
-    
+
     return c.json(invoice)
   } catch (error) {
     return c.json({ error: 'Internal server error' }, 500)
