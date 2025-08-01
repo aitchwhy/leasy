@@ -22,7 +22,8 @@
       "Bash(grep:*)",
       "Bash(timeout 10 npm run dev)",
       "Bash(node:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npm run:*)"
     ],
     "deny": []
   }
