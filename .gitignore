@@ -1,8 +1,8 @@
-# prod
+# Production build output
 dist/
 dist-server/
 
-# dev
+# Development environment
 .yarn/
 !.yarn/releases
 .vscode/*
@@ -12,16 +12,16 @@ dist-server/
 .idea/usage.statistics.xml
 .idea/shelf
 
-# deps
+# Dependencies
 node_modules/
 .wrangler
 
-# env
+# Environment variables
 .env
 .env.production
 .dev.vars
 
-# logs
+# Logs
 logs/
 *.log
 npm-debug.log*
@@ -30,5 +30,5 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# misc
+# Miscellaneous
 .DS_Store
