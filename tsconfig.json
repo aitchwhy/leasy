@@ -6,25 +6,10 @@
     "strict": true,
     "skipLibCheck": true,
     "lib": [
-      "DOM",
-      "DOM.Iterable",
       "ESNext"
     ],
-    "types": [
-      "@cloudflare/workers-types/2023-07-01",
-      "vite/client"
-    ],
+    "types": ["vite/client"],
     "jsx": "react-jsx",
-    "jsxImportSource": "react",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "allowJs": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true
+    "jsxImportSource": "hono/jsx"
   },
-  "include": ["src", "*.config.ts", "*.config.js"],
-  "exclude": ["node_modules", "dist", "dist-server"]
 }

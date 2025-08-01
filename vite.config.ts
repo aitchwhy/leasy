@@ -1,17 +1,7 @@
-import reactStack from 'hono-vite-react-stack'
+import { cloudflare } from '@cloudflare/vite-plugin'
 import { defineConfig } from 'vite'
-import { fileURLToPath, URL } from 'node:url'
+import ssrPlugin from 'vite-ssr-components/plugin'
 
 export default defineConfig({
-  plugins: [reactStack()],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
-  server: {
-    hmr: {
-      overlay: false,
-    },
-  },
+  plugins: [cloudflare(), ssrPlugin()]
 })
