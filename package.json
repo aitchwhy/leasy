@@ -1,20 +1,28 @@
 {
   "name": "leasy",
   "type": "module",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "$npm_execpath run build && vite preview",
-    "deploy": "$npm_execpath run build && wrangler deploy",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
-  },
-  "dependencies": {
-    "hono": "^4.8.10"
+    "dev": "bun run --filter @leasy/client dev & bun run --filter @leasy/server dev",
+    "build": "bun run --filter '*' build",
+    "preview": "bun run build && bun run --filter @leasy/client preview",
+    "deploy": "bun run build && bun run --filter @leasy/server deploy",
+    "test": "bun run test:unit && bun run test:e2e",
+    "test:unit": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "typecheck": "bun run --filter '*' typecheck",
+    "lint": "bun run --filter '*' lint",
+    "lint:fix": "bun run --filter '*' lint:fix"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.2.3",
-    "vite": "^6.3.5",
-    "vite-ssr-components": "^0.3.0",
-    "wrangler": "^4.17.0"
+    "@playwright/test": "^1.48.2",
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
   }
 }
