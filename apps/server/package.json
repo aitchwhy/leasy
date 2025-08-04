@@ -4,13 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "wrangler dev --port 8787",
-    "build": "tsc",
-    "deploy": "wrangler deploy --minify",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix"
+    "dev": "bun run --watch src/index.ts",
+    "build": "tsc"
   },
   "dependencies": {
     "hono": "^4.8.10",
