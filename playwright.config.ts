@@ -1,13 +1,19 @@
 import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
+  // where to look for tests
   testDir: './tests/e2e',
+  // run tests in parallel
   fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // no retries on failed tests
+  retries: 0,
+  // limit the number of workers
+  workers: 1,
+  // reporter to use
   reporter: 'html',
+
   use: {
+    // base URL to use in actions like `await page.goto('/')`
     baseURL: 'http://localhost:5173',
     trace: 'on-first-retry',
   },
@@ -17,16 +23,17 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: [
-    {
-      command: 'bun run --filter @leasy/client dev',
-      port: 5173,
-      reuseExistingServer: !process.env.CI,
-    },
-    {
-      command: 'bun run --filter @leasy/server dev',
-      port: 8787,
-      reuseExistingServer: !process.env.CI,
-    }
-  ],
+  // // launch a web server during the tests
+  // webServer: [
+  //   {
+  //     command: 'bun run --filter @leasy/client dev',
+  //     port: 5173,
+  //     reuseExistingServer: !process.env.CI,
+  //   },
+  //   {
+  //     command: 'bun run --filter @leasy/server dev',
+  //     port: 8787,
+  //     reuseExistingServer: !process.env.CI,
+  //   }
+  // ],
 })
