@@ -3,21 +3,10 @@
   "type": "module",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "apps/*"
   ],
   "scripts": {
-    "dev": "bun run --filter @leasy/client dev & bun run --filter @leasy/server dev",
-    "build": "bun run --filter '*' build",
-    "preview": "bun run build && bun run --filter @leasy/client preview",
-    "deploy": "bun run build && bun run --filter @leasy/server deploy",
-    "test": "bun run test:unit && bun run test:e2e",
-    "test:unit": "vitest",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --headed",
-    "typecheck": "bun run --filter '*' typecheck",
-    "lint": "bun run --filter '*' lint",
-    "lint:fix": "bun run --filter '*' lint:fix"
+    "dev": "bun run --filter @leasy/server dev"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.2",

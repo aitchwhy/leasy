@@ -12,28 +12,27 @@ export default defineConfig({
   // reporter to use
   reporter: 'html',
 
+  testIgnore: ['docs/**/*'],
+
   use: {
     // base URL to use in actions like `await page.goto('/')`
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
   },
+
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  // // launch a web server during the tests
-  // webServer: [
-  //   {
-  //     command: 'bun run --filter @leasy/client dev',
-  //     port: 5173,
-  //     reuseExistingServer: !process.env.CI,
-  //   },
-  //   {
-  //     command: 'bun run --filter @leasy/server dev',
-  //     port: 8787,
-  //     reuseExistingServer: !process.env.CI,
-  //   }
-  // ],
+
+  // launch a web server during the tests
+  webServer: [
+    {
+      command: 'bun run --filter @leasy/server dev',
+      port: 3000,
+      reuseExistingServer: true,
+    },
+  ],
 })
