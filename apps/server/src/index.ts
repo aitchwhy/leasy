@@ -6,5 +6,4 @@ const app = new Hono()
 app.get('/', (c) => {
   return c.text('Hello World Hank')
 })
-
 export default app

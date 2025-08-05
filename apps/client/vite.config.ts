@@ -1,7 +1,8 @@
-import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { defineConfig } from 'vite'
 
+/** @type {import('vite').UserConfig} */
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -10,10 +11,11 @@ export default defineConfig({
     }
   },
   server: {
-    port: 5173,
+    port: 3000,
+    strictPort: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:8787',
+        target: 'http://localhost:4000',
         changeOrigin: true
       }
     }
