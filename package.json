@@ -15,8 +15,12 @@
   "scripts": {
     "dev": "bun run --filter '*' dev",
     "prebuild": "bun install --frozen-lockfile",
+    // Run tests in all packages that have a test script
+    "test": "bun run --filter '*' test",
+    "test:server": "bun run --filter @leasy/server test",
+    "test:watch": "bun run --filter '*' test:watch",
+    "test:e2e": "playwright test",
     "build": "bun run --filter '*' build",
-    "test": "playwright test",
     "typecheck": "tsc --build",
     "lint": "eslint . --ext .ts,.tsx",
     "clean": "rimraf 'dist' 'apps/**/dist' 'node_modules' 'apps/**/node_modules'"
