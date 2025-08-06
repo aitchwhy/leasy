@@ -1,0 +1,848 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: *.md, docs/**/*, .cursor/, .claude/
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+apps/
+  server/
+    src/
+      constants.ts
+      db.json
+      index.test.ts
+      index.ts
+    package.json
+    tsconfig.json
+    vitest.config.ts
+tests/
+  e2e/
+    smoke.spec.ts
+    TEST_CASES.md
+.env.example
+.envrc
+.gitignore
+.node-version
+.prettierignore
+.prettierrc
+eslint.config.ts
+package.json
+playwright.config.ts
+tsconfig.json
+vitest.config.ts
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="apps/server/src/constants.ts">
+export const ROOT_RESPONSE = "OK";
+</file>
+
+<file path="apps/server/src/db.json">
+{
+  "units": [
+    {
+      "id": 1,
+      "unitNumber": "501",
+      "monthlyRent": 1200000,
+      "isOccupied": true,
+      "notes": "다와 & 오렌지전당포 - 분할청구",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "unitNumber": "502",
+      "monthlyRent": 1000000,
+      "isOccupied": true,
+      "notes": null,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "unitNumber": "503",
+      "monthlyRent": 1200000,
+      "isOccupied": true,
+      "notes": "예원연습실",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+
+  "tenants": [
+    {
+      "id": 1,
+      "name": "김철수",
+      "phoneNumber": "010-1234-5678",
+      "email": "tenant501@example.com",
+      "businessNumber": "123-45-67890",
+      "businessName": "다와 상사",
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "이영희",
+      "phoneNumber": "010-2345-6789",
+      "email": "tenant502@example.com",
+      "businessNumber": "234-56-78901",
+      "businessName": "영희 컴퍼니",
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "name": "박미진",
+      "phoneNumber": "010-3456-7890",
+      "email": "yewon@example.com",
+      "businessNumber": "345-67-89012",
+      "businessName": "예원연습실",
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+
+  "leases": [
+    {
+      "id": 1,
+      "unitId": 1,
+      "tenantId": 1,
+      "startDate": "2025-01-01",
+      "endDate": "2025-12-31",
+      "monthlyRent": 1200000,
+      "deposit": 10000000,
+      "paymentDueDay": 5,
+      "isActive": true,
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "unitId": 2,
+      "tenantId": 2,
+      "startDate": "2025-01-01",
+      "endDate": "2025-12-31",
+      "monthlyRent": 1000000,
+      "deposit": 10000000,
+      "paymentDueDay": 5,
+      "isActive": true,
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "unitId": 3,
+      "tenantId": 3,
+      "startDate": "2025-01-01",
+      "endDate": "2025-12-31",
+      "monthlyRent": 1200000,
+      "deposit": 12000000,
+      "paymentDueDay": 5,
+      "isActive": true,
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z"
+    }
+  ],
+
+  "invoices": [
+    {
+      "id": 1,
+      "leaseId": 1,
+      "year": 2025,
+      "month": 5,
+      "invoiceNumber": "202505-001",
+      "issueDate": "2025-05-01",
+      "dueDate": "2025-05-05",
+      "rentAmount": 1200000,
+      "rentVat": 120000,
+      "electricityAmount": 10500,
+      "waterAmount": 9512,
+      "totalAmount": 1340012,
+      "paidAmount": 0,
+      "status": "sent",
+      "paidDate": null,
+      "notes": null,
+      "createdAt": "2025-05-01T00:00:00Z",
+      "updatedAt": "2025-05-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "leaseId": 2,
+      "year": 2025,
+      "month": 5,
+      "invoiceNumber": "202505-002",
+      "issueDate": "2025-05-01",
+      "dueDate": "2025-05-05",
+      "rentAmount": 1000000,
+      "rentVat": 100000,
+      "electricityAmount": 8500,
+      "waterAmount": 7200,
+      "totalAmount": 1115700,
+      "paidAmount": 1115700,
+      "status": "paid",
+      "paidDate": "2025-05-03",
+      "notes": null,
+      "createdAt": "2025-05-01T00:00:00Z",
+      "updatedAt": "2025-05-03T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "leaseId": 3,
+      "year": 2025,
+      "month": 5,
+      "invoiceNumber": "202505-003",
+      "issueDate": "2025-05-01",
+      "dueDate": "2025-05-05",
+      "rentAmount": 1200000,
+      "rentVat": 120000,
+      "electricityAmount": 9512,
+      "waterAmount": 115497,
+      "totalAmount": 1445009,
+      "paidAmount": 0,
+      "status": "sent",
+      "paidDate": null,
+      "notes": "예원연습실 5월 청구서",
+      "createdAt": "2025-05-01T00:00:00Z",
+      "updatedAt": "2025-05-01T00:00:00Z"
+    },
+    {
+      "id": 4,
+      "leaseId": 1,
+      "year": 2025,
+      "month": 4,
+      "invoiceNumber": "202504-001",
+      "issueDate": "2025-04-01",
+      "dueDate": "2025-04-05",
+      "rentAmount": 1200000,
+      "rentVat": 120000,
+      "electricityAmount": 11200,
+      "waterAmount": 8900,
+      "totalAmount": 1340100,
+      "paidAmount": 1340100,
+      "status": "paid",
+      "paidDate": "2025-04-05",
+      "notes": null,
+      "createdAt": "2025-04-01T00:00:00Z",
+      "updatedAt": "2025-04-05T00:00:00Z"
+    },
+    {
+      "id": 5,
+      "leaseId": 2,
+      "year": 2025,
+      "month": 4,
+      "invoiceNumber": "202504-002",
+      "issueDate": "2025-04-01",
+      "dueDate": "2025-04-05",
+      "rentAmount": 1000000,
+      "rentVat": 100000,
+      "electricityAmount": 7800,
+      "waterAmount": 6500,
+      "totalAmount": 1114300,
+      "paidAmount": 1114300,
+      "status": "paid",
+      "paidDate": "2025-04-04",
+      "notes": null,
+      "createdAt": "2025-04-01T00:00:00Z",
+      "updatedAt": "2025-04-04T00:00:00Z"
+    },
+    {
+      "id": 6,
+      "leaseId": 3,
+      "year": 2025,
+      "month": 4,
+      "invoiceNumber": "202504-003",
+      "issueDate": "2025-04-01",
+      "dueDate": "2025-04-05",
+      "rentAmount": 1200000,
+      "rentVat": 120000,
+      "electricityAmount": 8900,
+      "waterAmount": 112000,
+      "totalAmount": 1440900,
+      "paidAmount": 1440900,
+      "status": "paid",
+      "paidDate": "2025-04-06",
+      "notes": "예원연습실 4월 청구서",
+      "createdAt": "2025-04-01T00:00:00Z",
+      "updatedAt": "2025-04-06T00:00:00Z"
+    }
+  ],
+
+  "payments": [
+    {
+      "id": 1,
+      "invoiceId": 2,
+      "amount": 1115700,
+      "paymentDate": "2025-05-03",
+      "paymentMethod": "bank_transfer",
+      "depositorName": "이영희",
+      "referenceNumber": "KB20250503-001",
+      "notes": null,
+      "createdAt": "2025-05-03T09:00:00Z"
+    },
+    {
+      "id": 2,
+      "invoiceId": 4,
+      "amount": 1340100,
+      "paymentDate": "2025-04-05",
+      "paymentMethod": "bank_transfer",
+      "depositorName": "김철수",
+      "referenceNumber": "KB20250405-001",
+      "notes": null,
+      "createdAt": "2025-04-05T10:00:00Z"
+    },
+    {
+      "id": 3,
+      "invoiceId": 5,
+      "amount": 1114300,
+      "paymentDate": "2025-04-04",
+      "paymentMethod": "bank_transfer",
+      "depositorName": "이영희",
+      "referenceNumber": "KB20250404-001",
+      "notes": null,
+      "createdAt": "2025-04-04T11:00:00Z"
+    },
+    {
+      "id": 4,
+      "invoiceId": 6,
+      "amount": 1440900,
+      "paymentDate": "2025-04-06",
+      "paymentMethod": "bank_transfer",
+      "depositorName": "박미진(예원)",
+      "referenceNumber": "KB20250406-001",
+      "notes": "1일 연체",
+      "createdAt": "2025-04-06T14:00:00Z"
+    }
+  ]
+}
+</file>
+
+<file path="tests/e2e/TEST_CASES.md">
+# Test cases
+
+- GET / returns 200 OK "Hello world Hank"
+- GET /health returns "200 OK"
+</file>
+
+<file path=".env.example">
+API_HOST='http://localhost:4000'
+UI_HOST='http://localhost:3000'
+</file>
+
+<file path=".node-version">
+24
+</file>
+
+<file path=".prettierignore">
+# Dependencies
+node_modules/
+bun.lock
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Test artifacts
+coverage/
+playwright-report/
+test-results/
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated files
+*.min.js
+*.min.css
+</file>
+
+<file path=".prettierrc">
+{
+  "semi": true,
+  "trailingComma": "all",
+  "singleQuote": false,
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "proseWrap": "preserve",
+  "overrides": [
+    {
+      "files": "*.json",
+      "options": {
+        "printWidth": 80
+      }
+    },
+    {
+      "files": ["*.yml", "*.yaml"],
+      "options": {
+        "singleQuote": false,
+        "printWidth": 80
+      }
+    }
+  ]
+}
+</file>
+
+<file path="eslint.config.ts">
+import js from "@eslint/js";
+import globals from "globals";
+import tseslint from "typescript-eslint";
+import prettierPlugin from "eslint-plugin-prettier";
+import prettierConfig from "eslint-config-prettier";
+
+export default tseslint.config(
+  {
+    ignores: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/*.tsbuildinfo",
+      "**/coverage/**",
+      "**/playwright-report/**",
+      "**/test-results/**",
+      "**/.vscode/**",
+      "**/.idea/**",
+      "**/*.min.js",
+      "**/*.min.css",
+      "bun.lock",
+      "**/*.json",
+      "**/*.yml",
+      "**/*.yaml",
+    ],
+  },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    files: ["**/*.{js,mjs,cjs,ts,tsx,mts,cts}"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        ...globals.es2021,
+      },
+    },
+    plugins: {
+      prettier: prettierPlugin,
+    },
+    rules: {
+      ...prettierConfig.rules,
+      "prettier/prettier": "error",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+        },
+      ],
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/explicit-module-boundary-types": "off",
+      "@typescript-eslint/no-non-null-assertion": "warn",
+    },
+  },
+  {
+    files: ["**/*.config.ts", "**/*.config.js"],
+    languageOptions: {
+      parserOptions: {
+        project: false,
+      },
+    },
+  },
+  {
+    files: ["**/*.test.ts", "**/*.spec.ts", "**/*.e2e.ts"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
+);
+</file>
+
+<file path=".envrc">
+layout node
+</file>
+
+<file path="apps/server/src/index.test.ts">
+import { describe, expect, it } from "vitest";
+import { ROOT_RESPONSE } from "./constants";
+import db from "./db.json";
+import app from "./index";
+
+describe("App", () => {
+  it("GET / returns 200 OK", async () => {
+    const res = await app.request("/");
+    expect(res.ok).toBeTruthy();
+    expect(await res.text()).toBe(ROOT_RESPONSE);
+  });
+});
+
+describe("App Buildings", () => {
+  it("GET /buildings returns list of buildings", async () => {
+    const res = await app.request("/buildings");
+    expect(res.ok).toBeTruthy();
+
+    const buildings = (await res.json()) as typeof db.units;
+    expect(buildings).toBeDefined();
+    expect(buildings.length).toBe(db.units.length);
+    expect(buildings).toEqual(db.units);
+  });
+});
+</file>
+
+<file path="apps/server/tsconfig.json">
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["bun-types"]
+  },
+  "include": ["src"]
+}
+</file>
+
+<file path="apps/server/vitest.config.ts">
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: "node",
+    include: ["src/**/*.test.ts"],
+    exclude: ["node_modules/**", "dist/**"],
+  },
+});
+</file>
+
+<file path="vitest.config.ts">
+import { resolve } from "path";
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: "node",
+    include: ["apps/**/*.test.ts", "packages/**/*.test.ts"],
+    exclude: ["**/node_modules/**", "**/dist/**", "tests/e2e/**"],
+  },
+  resolve: {
+    alias: {
+      "@leasy/server": resolve(__dirname, "./apps/server/src"),
+      "@leasy/shared": resolve(__dirname, "./packages/shared/src"),
+    },
+  },
+});
+</file>
+
+<file path="playwright.config.ts">
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  // where to look for tests
+  testDir: "./tests/e2e",
+  // run tests in parallel
+  fullyParallel: true,
+  // no retries on failed tests
+  retries: 0,
+  // limit the number of workers
+  workers: 1,
+  // reporter to use
+  reporter: "html",
+
+  testIgnore: ["docs/**/*"],
+
+  use: {
+    // base URL to use in actions like `await page.goto('/')`
+    baseURL: "http://localhost:3000",
+    trace: "on-first-retry",
+  },
+
+  projects: [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+    },
+  ],
+
+  // launch a web server during the tests
+  webServer: [
+    {
+      command: "bun run --filter @leasy/server dev",
+      port: 3000,
+      reuseExistingServer: true,
+    },
+  ],
+});
+</file>
+
+<file path="tests/e2e/smoke.spec.ts">
+// (1) write list of test scenarios to cover
+// (2) implement exactly 1 test case into runnable (which fails)
+// (3) change code to make test + previous tests pass
+// (4) (optional) refactor to improve code
+// (5) repeat from 2 until all tests covered
+
+import { expect, test } from "@playwright/test";
+
+test("GET / returns 200 OK", async ({ request }) => {
+  const res = await request.get("/");
+  expect(res.ok()).toBeTruthy();
+  expect(await res.text()).toBe("OK");
+});
+</file>
+
+<file path=".gitignore">
+# Production build output
+dist/
+dist-server/
+
+# TypeScript build info
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Development environment
+.yarn/
+!.yarn/releases
+.vscode/*
+!.vscode/launch.json
+!.vscode/*.code-snippets
+.idea/workspace.xml
+.idea/usage.statistics.xml
+.idea/shelf
+
+# Dependencies
+node_modules/
+.wrangler
+
+# Environment variables
+.env
+.env.production
+.dev.vars
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Miscellaneous
+.DS_Store
+*.DS_Store
+playwright-report
+test-results
+
+
+
+.nx/cache
+.nx/workspace-data
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
+</file>
+
+<file path="apps/server/src/index.ts">
+import { Hono } from "hono";
+import { ROOT_RESPONSE } from "./constants";
+import db from "./db.json";
+
+const app = new Hono();
+
+// Health check
+app.get("/", (c) => {
+  return c.text(ROOT_RESPONSE);
+});
+
+// list all data (json-server DB)
+app.get("/db", (c) => {
+  return c.json(db);
+});
+
+// list buildings
+app.get("/buildings", (c) => {
+  return c.json(db.units);
+});
+
+export default app;
+</file>
+
+<file path="tsconfig.json">
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    // Environment setup & latest features
+    "lib": ["ESNext"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "allowJs": false,
+
+    // Bundler mode
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+
+    // Debugging & Development
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Best practices
+    "strict": true,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // Some stricter flags (disabled by default)
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false,
+
+    // Misc
+    "isolatedModules": true,
+    "types": ["node"]
+  }
+}
+</file>
+
+<file path="apps/server/package.json">
+{
+  "name": "@leasy/server",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --target=bun --outdir=dist --minify",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist node_modules"
+  },
+  "dependencies": {
+    "hono": "^4.8.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.18",
+    "json-server": "^1.0.0-beta.3"
+  }
+}
+</file>
+
+<file path="package.json">
+{
+  "name": "leasy",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.0.0",
+    "bun": ">=1.1.0"
+  },
+  "packageManager": "bun@1.1.47",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun run --filter '*' dev",
+    "prebuild": "bun install --frozen-lockfile",
+    "build": "bun run --filter '*' build",
+    "test": "bun run --filter '*' test",
+    "test:server": "bun run --filter @leasy/server test",
+    "test:watch": "bun run --filter '*' test:watch",
+    "test:e2e": "playwright test",
+    "typecheck": "tsc --build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write '**/*.{ts,tsx,js,jsx,json,yml,yaml,md}'",
+    "format:check": "prettier --check '**/*.{ts,tsx,js,jsx,json,yml,yaml,md}'",
+    "clean": "rimraf 'dist' 'apps/**/dist' 'node_modules' 'apps/**/node_modules'"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@playwright/test": "^1.54.2",
+    "@types/bun": "^1.2.19",
+    "@types/node": "^22.17.0",
+    "@typescript-eslint/eslint-plugin": "^8.39.0",
+    "@typescript-eslint/parser": "^8.39.0",
+    "eslint": "^9.32.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-prettier": "5.5.4",
+    "globals": "^16.3.0",
+    "jiti": "^2.5.1",
+    "playwright": "^1.54.2",
+    "prettier": "3.6.2",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.39.0",
+    "vitest": "^3.2.4"
+  }
+}
+</file>
+
+</files>

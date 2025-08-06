@@ -3,99 +3,170 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
-Leasy is a minimal web application with separate client and server packages, transitioning from an invoice management system to a simpler template. Currently runs a basic "Hello World" implementation.
+
+Leasy is a minimal Bun-based monorepo template with a Hono server backend. It provides a clean starting point for building APIs with TypeScript, ESLint, and Prettier pre-configured.
 
 ## Development Commands
+
 ```bash
 # Development
-bun run dev                    # Start server on port 4000
-bun run --watch src/index.ts   # Watch mode for server development
+bun run dev                           # Start server on port 3000 (watches for changes)
+cd apps/server && bun run --watch src/index.ts  # Direct server development
 
 # Testing
-bun run test:e2e               # Run E2E tests with Playwright  
-bun run test:e2e:ui            # Run E2E tests with UI interface
-bun run test:e2e:headed        # Run E2E tests in headed mode
+bun run test                          # Run all tests (currently server only)
+bun run test:server                   # Run server unit tests with Vitest
+bun run test:watch                    # Run tests in watch mode
+bun run test:e2e                      # Run Playwright E2E tests
+bun run test:e2e -- tests/e2e/smoke.spec.ts  # Run specific E2E test file
 
 # Type Checking & Build
-bun run typecheck              # TypeScript type checking (client only)
-bun run build                  # Build client and server
+bun run typecheck                     # TypeScript type checking across all packages
+bun run build                         # Build all packages
 
-# Linting (client only)
-bun run lint                   # Lint client code
-bun run lint:fix              # Fix linting issues
+# Code Quality (NEW)
+bun run lint                          # ESLint check all TypeScript files
+bun run lint:fix                      # Auto-fix ESLint issues
+bun run format                        # Prettier format all files
+bun run format:check                  # Check if files are formatted
 
-# Run specific test file
-bun run test:e2e -- tests/e2e/health.spec.ts
+# Cleanup
+bun run clean                         # Remove dist, node_modules across workspace
+```
+
+### Running Individual Server Tests
+
+```bash
+cd apps/server && bun run test       # Run server tests directly
+cd apps/server && bun run test:watch # Watch mode for server tests
+```
+
+### Playwright E2E Testing
+
+```bash
+bun run test:e2e                     # Run all E2E tests
+bun run test:e2e -- --ui             # Open Playwright UI mode
+bun run test:e2e -- --headed         # Run tests in headed browser
+bun run test:e2e -- --debug          # Debug mode
+npx playwright show-report           # View last HTML report
 ```
 
 ## Architecture
+
 ### Monorepo Structure
+
 ```
 leasy/
 ├── apps/
-│   ├── client/          # React frontend (port 3000)
-│   │   └── src/
-│   │       ├── App.tsx  # Main component
-│   │       └── main.tsx # Entry point
-│   └── server/          # Hono backend (port 4000) 
-│       └── src/
-│           └── index.ts # Simple "Hello World" endpoint
-└── tests/
-    └── e2e/            # Playwright E2E tests
+│   └── server/                # Hono backend (port 3000)
+│       ├── src/
+│       │   ├── index.ts       # Main server with endpoints
+│       │   ├── index.test.ts  # Vitest unit tests
+│       │   ├── constants.ts   # Constants definitions
+│       │   └── db.json        # Mock database
+│       ├── package.json
+│       └── vitest.config.ts   # Vitest configuration
+├── tests/
+│   └── e2e/                   # Playwright E2E tests
+│       └── smoke.spec.ts      # Basic health check test
+├── eslint.config.ts           # ESLint flat config with Prettier
+├── .prettierrc                # Prettier configuration
+└── .vscode/                   # VS Code workspace settings
+    └── settings.json          # Format on save, ESLint integration
 ```
 
 ### Technology Stack
-- **Runtime**: Bun (workspace-based monorepo)
+
+- **Runtime**: Bun 1.1.47+ (workspace-based monorepo)
 - **Server**: Hono framework with TypeScript
-- **Client**: React 19 + Vite + TypeScript + Tailwind CSS
-- **Testing**: Playwright for E2E tests
-- **State Management**: TanStack Query (available but not currently used)
+- **Testing**:
+  - Vitest for unit/integration tests
+  - Playwright for E2E tests
+- **Code Quality**:
+  - ESLint 9+ with flat config
+  - Prettier 3.6+ as ESLint plugin
+  - TypeScript 5.9+ with strict mode
+- **Package Management**: Bun workspaces
 
-### Key Configuration
-- **Client Port**: 3000 (Vite dev server)
-- **Server Port**: 4000 (Bun dev server)  
-- **Proxy**: Client proxies `/api` requests to server on port 4000
-- **Path Alias**: `@/` maps to `src/` directory in client
-- **Test Base URL**: http://localhost:3000
+### Current Endpoints
 
-## Testing Infrastructure
-### Playwright Configuration
-- Tests located in `/tests/e2e/`
-- Base URL: http://localhost:3000
-- Web server command: `bun run --filter @leasy/server dev`
-- Single worker, no retries for consistent test runs
+- `GET /` - Health check returning "OK"
+- `GET /db` - Returns full mock database
+- `GET /buildings` - Returns list of buildings from mock data
 
-### Current Tests
-- `health.spec.ts`: Basic server health check at root endpoint
+### Test Configuration
 
-## Current Implementation Status
-### What's Working
-- Basic server with "Hello World" endpoint at `/`
-- Client showing "Hello World Hank 3" UI
-- E2E test infrastructure configured and running
-- TypeScript strict mode enabled
+- **Playwright**: Tests in `/tests/e2e/`, runs server on port 3000
+- **Vitest**: Tests in `src/**/*.test.ts`, Node environment
+- **Coverage**: Server unit tests and E2E smoke tests
 
-### What's Simplified/Removed
-- No authentication system (was mock auth)
-- No database or data persistence
-- No API routes beyond health check
-- No complex UI components or pages
-- No PDF generation or invoice features
+## Code Quality Setup
 
-## Development Notes
-### Server Development (apps/server/)
-- Uses Hono JSX for potential server-side rendering
-- Configured for Cloudflare Workers types (but not deployed)
-- Minimal implementation - just health check endpoint
+### ESLint + Prettier Integration
 
-### Client Development (apps/client/)
-- Vite configuration with React plugin
-- Tailwind CSS configured but minimal usage
-- TanStack Query available but not implemented
-- Single App component with basic styling
+The project uses ESLint 9 flat config with Prettier as a plugin:
 
-### Important Considerations
-- Project structure suggests Cloudflare Workers deployment intent but no wrangler.toml exists
-- Legacy documentation in README references removed features (invoices, tenants, etc.)
-- Test infrastructure over-provisioned for current simple implementation
-- Both `npm` and `bun` commands referenced - project uses Bun exclusively
+- ESLint handles code quality rules
+- Prettier handles formatting through ESLint
+- `eslint-config-prettier` prevents rule conflicts
+- Supports TypeScript, JSON, and YAML files
+
+### VS Code Integration
+
+- **Format on Save**: Enabled via Prettier extension
+- **ESLint Auto-fix**: Runs on save
+- **TypeScript**: Uses workspace version
+- Settings in `.vscode/settings.json`
+
+## Common Development Tasks
+
+### Adding a New Endpoint
+
+1. Add the endpoint in `apps/server/src/index.ts`
+2. Write unit test in `apps/server/src/index.test.ts`
+3. Run `cd apps/server && bun run test` to verify
+4. Optionally add E2E test in `tests/e2e/`
+
+### Running Tests Before Commit
+
+```bash
+bun run lint:fix              # Fix any linting issues
+bun run format                # Format all files
+bun run test:server           # Run unit tests
+bun run test:e2e              # Run E2E tests
+bun run typecheck             # Check types
+```
+
+### Debugging Failed Tests
+
+```bash
+# For unit tests
+cd apps/server && bun run test:watch
+
+# For E2E tests
+bun run test:e2e -- --debug
+bun run test:e2e -- --ui  # Interactive UI mode
+```
+
+## Current Features
+
+- ✅ Minimal Hono API server
+- ✅ TypeScript with strict mode
+- ✅ ESLint + Prettier integration
+- ✅ Vitest unit testing
+- ✅ Playwright E2E testing
+- ✅ VS Code format on save
+- ✅ Bun workspace monorepo structure
+- ✅ Hot reload development
+
+## Known Issues
+
+- None currently - project has been cleaned up and simplified
+
+## Future Considerations
+
+- Add client app when needed (structure ready)
+- Add shared packages for common code
+- Add database integration
+- Add authentication
+- Add API documentation (OpenAPI/Swagger)

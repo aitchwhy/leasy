@@ -4,10 +4,10 @@
 // (4) (optional) refactor to improve code
 // (5) repeat from 2 until all tests covered
 
-import { expect, test } from '@playwright/test'
+import { expect, test } from "@playwright/test";
 
-test('GET / returns 200 OK', async({ request }) => {
-    const res = await request.get("/")
-    expect(res.ok()).toBeTruthy()
-    expect(await res.text()).toBe("OK")
-})
+test("GET / returns 200 OK", async ({ request }) => {
+  const res = await request.get("/");
+  expect(res.ok()).toBeTruthy();
+  expect(await res.text()).toBe("OK");
+});

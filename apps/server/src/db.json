@@ -1,0 +1,279 @@
+{
+  "units": [
+    {
+      "id": 1,
+      "unitNumber": "501",
+      "monthlyRent": 1200000,
+      "isOccupied": true,
+      "notes": "다와 & 오렌지전당포 - 분할청구",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "unitNumber": "502",
+      "monthlyRent": 1000000,
+      "isOccupied": true,
+      "notes": null,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "unitNumber": "503",
+      "monthlyRent": 1200000,
+      "isOccupied": true,
+      "notes": "예원연습실",
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+
+  "tenants": [
+    {
+      "id": 1,
+      "name": "김철수",
+      "phoneNumber": "010-1234-5678",
+      "email": "tenant501@example.com",
+      "businessNumber": "123-45-67890",
+      "businessName": "다와 상사",
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "이영희",
+      "phoneNumber": "010-2345-6789",
+      "email": "tenant502@example.com",
+      "businessNumber": "234-56-78901",
+      "businessName": "영희 컴퍼니",
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "name": "박미진",
+      "phoneNumber": "010-3456-7890",
+      "email": "yewon@example.com",
+      "businessNumber": "345-67-89012",
+      "businessName": "예원연습실",
+      "isActive": true,
+      "createdAt": "2024-01-01T00:00:00Z",
+      "updatedAt": "2024-01-01T00:00:00Z"
+    }
+  ],
+
+  "leases": [
+    {
+      "id": 1,
+      "unitId": 1,
+      "tenantId": 1,
+      "startDate": "2025-01-01",
+      "endDate": "2025-12-31",
+      "monthlyRent": 1200000,
+      "deposit": 10000000,
+      "paymentDueDay": 5,
+      "isActive": true,
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "unitId": 2,
+      "tenantId": 2,
+      "startDate": "2025-01-01",
+      "endDate": "2025-12-31",
+      "monthlyRent": 1000000,
+      "deposit": 10000000,
+      "paymentDueDay": 5,
+      "isActive": true,
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "unitId": 3,
+      "tenantId": 3,
+      "startDate": "2025-01-01",
+      "endDate": "2025-12-31",
+      "monthlyRent": 1200000,
+      "deposit": 12000000,
+      "paymentDueDay": 5,
+      "isActive": true,
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z"
+    }
+  ],
+
+  "invoices": [
+    {
+      "id": 1,
+      "leaseId": 1,
+      "year": 2025,
+      "month": 5,
+      "invoiceNumber": "202505-001",
+      "issueDate": "2025-05-01",
+      "dueDate": "2025-05-05",
+      "rentAmount": 1200000,
+      "rentVat": 120000,
+      "electricityAmount": 10500,
+      "waterAmount": 9512,
+      "totalAmount": 1340012,
+      "paidAmount": 0,
+      "status": "sent",
+      "paidDate": null,
+      "notes": null,
+      "createdAt": "2025-05-01T00:00:00Z",
+      "updatedAt": "2025-05-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "leaseId": 2,
+      "year": 2025,
+      "month": 5,
+      "invoiceNumber": "202505-002",
+      "issueDate": "2025-05-01",
+      "dueDate": "2025-05-05",
+      "rentAmount": 1000000,
+      "rentVat": 100000,
+      "electricityAmount": 8500,
+      "waterAmount": 7200,
+      "totalAmount": 1115700,
+      "paidAmount": 1115700,
+      "status": "paid",
+      "paidDate": "2025-05-03",
+      "notes": null,
+      "createdAt": "2025-05-01T00:00:00Z",
+      "updatedAt": "2025-05-03T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "leaseId": 3,
+      "year": 2025,
+      "month": 5,
+      "invoiceNumber": "202505-003",
+      "issueDate": "2025-05-01",
+      "dueDate": "2025-05-05",
+      "rentAmount": 1200000,
+      "rentVat": 120000,
+      "electricityAmount": 9512,
+      "waterAmount": 115497,
+      "totalAmount": 1445009,
+      "paidAmount": 0,
+      "status": "sent",
+      "paidDate": null,
+      "notes": "예원연습실 5월 청구서",
+      "createdAt": "2025-05-01T00:00:00Z",
+      "updatedAt": "2025-05-01T00:00:00Z"
+    },
+    {
+      "id": 4,
+      "leaseId": 1,
+      "year": 2025,
+      "month": 4,
+      "invoiceNumber": "202504-001",
+      "issueDate": "2025-04-01",
+      "dueDate": "2025-04-05",
+      "rentAmount": 1200000,
+      "rentVat": 120000,
+      "electricityAmount": 11200,
+      "waterAmount": 8900,
+      "totalAmount": 1340100,
+      "paidAmount": 1340100,
+      "status": "paid",
+      "paidDate": "2025-04-05",
+      "notes": null,
+      "createdAt": "2025-04-01T00:00:00Z",
+      "updatedAt": "2025-04-05T00:00:00Z"
+    },
+    {
+      "id": 5,
+      "leaseId": 2,
+      "year": 2025,
+      "month": 4,
+      "invoiceNumber": "202504-002",
+      "issueDate": "2025-04-01",
+      "dueDate": "2025-04-05",
+      "rentAmount": 1000000,
+      "rentVat": 100000,
+      "electricityAmount": 7800,
+      "waterAmount": 6500,
+      "totalAmount": 1114300,
+      "paidAmount": 1114300,
+      "status": "paid",
+      "paidDate": "2025-04-04",
+      "notes": null,
+      "createdAt": "2025-04-01T00:00:00Z",
+      "updatedAt": "2025-04-04T00:00:00Z"
+    },
+    {
+      "id": 6,
+      "leaseId": 3,
+      "year": 2025,
+      "month": 4,
+      "invoiceNumber": "202504-003",
+      "issueDate": "2025-04-01",
+      "dueDate": "2025-04-05",
+      "rentAmount": 1200000,
+      "rentVat": 120000,
+      "electricityAmount": 8900,
+      "waterAmount": 112000,
+      "totalAmount": 1440900,
+      "paidAmount": 1440900,
+      "status": "paid",
+      "paidDate": "2025-04-06",
+      "notes": "예원연습실 4월 청구서",
+      "createdAt": "2025-04-01T00:00:00Z",
+      "updatedAt": "2025-04-06T00:00:00Z"
+    }
+  ],
+
+  "payments": [
+    {
+      "id": 1,
+      "invoiceId": 2,
+      "amount": 1115700,
+      "paymentDate": "2025-05-03",
+      "paymentMethod": "bank_transfer",
+      "depositorName": "이영희",
+      "referenceNumber": "KB20250503-001",
+      "notes": null,
+      "createdAt": "2025-05-03T09:00:00Z"
+    },
+    {
+      "id": 2,
+      "invoiceId": 4,
+      "amount": 1340100,
+      "paymentDate": "2025-04-05",
+      "paymentMethod": "bank_transfer",
+      "depositorName": "김철수",
+      "referenceNumber": "KB20250405-001",
+      "notes": null,
+      "createdAt": "2025-04-05T10:00:00Z"
+    },
+    {
+      "id": 3,
+      "invoiceId": 5,
+      "amount": 1114300,
+      "paymentDate": "2025-04-04",
+      "paymentMethod": "bank_transfer",
+      "depositorName": "이영희",
+      "referenceNumber": "KB20250404-001",
+      "notes": null,
+      "createdAt": "2025-04-04T11:00:00Z"
+    },
+    {
+      "id": 4,
+      "invoiceId": 6,
+      "amount": 1440900,
+      "paymentDate": "2025-04-06",
+      "paymentMethod": "bank_transfer",
+      "depositorName": "박미진(예원)",
+      "referenceNumber": "KB20250406-001",
+      "notes": "1일 연체",
+      "createdAt": "2025-04-06T14:00:00Z"
+    }
+  ]
+}

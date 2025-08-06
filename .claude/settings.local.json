@@ -27,7 +27,11 @@
       "Bash(bun install:*)",
       "Bash(bunx playwright:*)",
       "Bash(bun run test:e2e:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(bun run:*)",
+      "Bash(bun prettier:*)",
+      "Bash(bun eslint:*)",
+      "Bash(bun add:*)"
     ],
     "deny": []
   }

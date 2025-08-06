@@ -1,643 +1,253 @@
-# Monorepo Setup Guide - Simplifying Leasy
+# Monorepo Setup Guide
 
-## Minimal
+This guide explains the current monorepo structure and how to expand it.
 
-# Minimal Monorepo Setup
+## Current Structure
 
-## Current Issues Found
+This is a minimal Bun workspace monorepo with:
 
-⚠️ **Critical: Server app is missing package.json file!**
+- **Server app** at `apps/server/` - Hono API server
+- **E2E tests** at `tests/e2e/` - Playwright tests
+- **Workspace root** - Shared dev dependencies and scripts
 
-The server directory exists but has no package.json, which breaks the monorepo workspace setup.
-
-## Quick Fix (2 minutes)
-
-### 1. Create the missing server package.json
+## Quick Start
 
 ```bash
-# THIS IS CRITICAL - Server has no package.json!
-cat > apps/server/package.json << 'EOF'
-{
-  "name": "@leasy/server",
-  "version": "1.0.0",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "dev": "bun run --watch src/index.ts --port 4000",
-    "build": "echo 'No build step needed for Bun'"
-  },
-  "dependencies": {
-    "hono": "^4.8.10"
-  }
-}
-EOF
+# Install all dependencies (creates single bun.lock at root)
+bun install
+
+# Start development server
+bun run dev
+
+# Run tests
+bun run test
 ```
 
-### 2. Clean up and simplify client (optional)
+## Workspace Configuration
 
-The client has many dependencies. For minimal setup:
+The monorepo uses Bun workspaces defined in root `package.json`:
+
+```json
+{
+  "workspaces": ["apps/*", "packages/*"]
+}
+```
+
+This ensures:
+
+- ✅ Single `bun.lock` file at root
+- ✅ Single `node_modules` at root
+- ✅ Shared dev dependencies
+- ✅ Consistent versions across packages
+
+## Available Scripts
+
+All scripts are defined at the root level:
+
+```bash
+bun run dev          # Start server with hot reload
+bun run build        # Build all packages
+bun run test         # Run all tests
+bun run lint         # ESLint check
+bun run format       # Prettier format
+bun run typecheck    # TypeScript check
+bun run clean        # Clean all build artifacts
+```
+
+## Adding a Client App
+
+The structure is ready for a client app:
+
+### 1. Create Client Structure
+
+```bash
+mkdir -p apps/client/src
+```
+
+### 2. Create Client package.json
 
 ```json
 {
   "name": "@leasy/client",
   "version": "1.0.0",
-  "type": "module",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@types/react": "^19.1.9",
-    "@types/react-dom": "^19.1.7",
-    "@vitejs/plugin-react": "^4.7.0",
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.17",
-    "vite": "^6.3.5"
+    "@vitejs/plugin-react": "^4.3.0",
+    "vite": "^5.0.0"
   }
 }
 ```
 
-### 3. Clean and reinstall
+### 3. Update Root Dev Script
 
-```bash
-# Remove any existing node_modules and lock files
-rm -rf node_modules apps/*/node_modules
-rm -f bun.lock package-lock.json
-
-# Install everything fresh (creates single bun.lock at root)
-bun install
-
-# Verify concurrently is installed (should already be in root devDependencies)
-# If not: bun add -d concurrently
-```
-
-### 4. Run the monorepo
-
-```bash
-# Start both apps with one command
-bun run dev
-
-# Client runs on http://localhost:3000
-# Server runs on http://localhost:4000
-```
-
-## Verify Everything Works
-
-After setup, you should have:
-
-✅ **Server package.json exists** at `apps/server/package.json`
-✅ **Single bun.lock** at project root
-✅ **Single node_modules** at project root
-✅ **Both apps start** with `bun run dev`
-
-## All Available Commands
-
-```bash
-bun run dev        # Start client + server
-bun run build      # Build both apps
-bun run test       # Run Playwright tests
-bun run clean      # Remove all node_modules
-bun run reinstall  # Clean and reinstall everything
-```
-
-## Common Issues
-
-**Error: "Cannot find module '@leasy/server'"**
-
-- The server package.json is missing. Run step 1 to create it.
-
-**Error: "concurrently: command not found"**
-
-```bash
-bun add -d concurrently
-```
-
-**Ports already in use:**
-
-```bash
-# Kill any running processes
-pkill -f "bun|vite|node"
-```
-
-## Ultra-Minimal Alternative
-
-If you don't want any monorepo setup, just run in two terminals:
-
-```bash
-# Terminal 1 - Client
-cd apps/client && bun run dev
-
-# Terminal 2 - Server
-cd apps/server && bun run --watch src/index.ts --port 4000
-```
-
-But the monorepo setup is worth it for single-command development.
-
-## Nx vs Minimal Approach Comparison
-
-### Nx Monorepo Tool
-
-**Pros:**
-
-- ✅ **Intelligent caching** - Only rebuilds what changed (great for large projects)
-- ✅ **Task orchestration** - Automatically runs tasks in dependency order
-- ✅ **Affected commands** - Test/build only what's affected by changes
-- ✅ **Nx Cloud** - Distributed caching across team/CI (you have nxCloudId configured)
-- ✅ **Generators** - Scaffold new apps/libs with consistent structure
-- ✅ **Dependency graph** - Visualize project dependencies (`nx graph`)
-- ✅ **Plugin ecosystem** - Vite, React, ESLint plugins with best practices
-- ✅ **Incremental builds** - Speed up CI/CD pipelines significantly
-
-**Cons:**
-
-- ❌ **Complexity overhead** - 21MB+ dependency, learning curve
-- ❌ **Configuration files** - nx.json, project.json per app, more to maintain
-- ❌ **Overkill for simple projects** - Your 2-app setup doesn't need orchestration
-- ❌ **Bun compatibility** - Nx primarily designed for npm/yarn/pnpm
-- ❌ **Mental overhead** - Adds concepts like executors, generators, affected
-- ❌ **Tool lock-in** - Harder to migrate away once deeply integrated
-
-### Minimal Bun Workspace Approach
-
-**Pros:**
-
-- ✅ **Dead simple** - Just package.json files and bun workspaces
-- ✅ **Zero config** - Works out of the box with bun
-- ✅ **Fast installs** - Bun is significantly faster than npm/yarn
-- ✅ **Lightweight** - No extra tools or abstractions
-- ✅ **Native TypeScript** - Bun runs TS directly, no build step for server
-- ✅ **Easy to understand** - Standard npm workspace concepts
-- ✅ **No lock-in** - Easy to migrate to any other tool later
-
-**Cons:**
-
-- ❌ **No caching** - Rebuilds everything every time
-- ❌ **Manual orchestration** - You manage task dependencies
-- ❌ **No affected detection** - Tests/builds run for all apps
-- ❌ **Basic scripts only** - Using concurrently for parallel tasks
-- ❌ **No visualization** - Can't see project dependency graph
-- ❌ **Scales poorly** - Gets messy with 10+ apps/packages
-
-### Recommendation for Your Project
-
-**Use the Minimal Approach (current setup) because:**
-
-1. **Project Size** - You have 2 apps (client/server), Nx benefits kick in at 5+ apps
-2. **Team Size** - Small team doesn't need distributed caching
-3. **Build Speed** - Bun is already fast, your apps are small
-4. **Complexity** - Your apps are simple, no complex dependency chains
-5. **Learning Curve** - Get building immediately vs learning Nx concepts
-
-**Consider Nx when you have:**
-
-- 5+ applications or packages
-- Multiple developers needing shared cache
-- Complex build pipelines with many steps
-- Need for consistent code generation
-- CI/CD time becomes a bottleneck
-- Monorepo with different tech stacks (Go, Python, etc.)
-
-### Quick Migration Path
-
-**If you want to try Nx later:**
-
-```bash
-# Keep your current structure, just add Nx
-npx nx@latest init
-
-# Or full Nx workspace setup
-npx create-nx-workspace@latest --preset=npm --packageManager=bun
-```
-
-**Current Nx in your project:**
-
-- You have `nx` installed and `nx.json` with cloud ID
-- But no actual Nx configuration for apps
-- This gives you worst of both worlds (dependency without benefits)
-
-**To remove unused Nx:**
-
-```bash
-bun remove nx
-rm nx.json
-```
-
-### Bottom Line
-
-For a simple client/server monorepo like yours, the minimal Bun workspace approach is perfect. It's fast, simple, and maintainable. Save Nx for when you actually need its advanced features - you can always add it later without restructuring.
-
----
-
-## Current Issues
-
-Your monorepo currently has several issues that make it harder to maintain:
-
-1. **Mixed Package Managers**: Both npm (`package-lock.json`) and bun (`bun.lock`) files exist
-2. **Duplicate Dependencies**: Each app has its own `node_modules` and lock files
-3. **Inconsistent Scripts**: Root `package.json` only runs server, not coordinated development
-4. **Legacy Artifacts**: Old documentation and test files from previous implementation
-5. **No Shared Code Structure**: No place for shared types or utilities
-
-## Migration Steps
-
-Follow these steps in order. Each step includes verification to ensure it worked correctly.
-
-### Step 1: Backup Current State
-
-```bash
-# Create a backup branch
-git checkout -b backup-before-monorepo-cleanup
-git add -A
-git commit -m "Backup before monorepo restructure"
-git checkout main
-```
-
-### Step 2: Clean Package Manager Artifacts
-
-```bash
-# Remove npm artifacts
-rm -f package-lock.json
-rm -f apps/client/package-lock.json
-rm -f apps/server/package-lock.json
-
-# Remove duplicate lock files
-rm -f apps/server/bun.lock
-rm -f apps/client/bun.lock
-
-# Clean all node_modules
-rm -rf node_modules
-rm -rf apps/client/node_modules
-rm -rf apps/server/node_modules
-```
-
-**Verify**: Run `ls -la` in root and each app directory - no `node_modules` or lock files should exist except root `bun.lock`
-
-### Step 3: Update Root package.json
-
-Replace your root `package.json` with:
+In root `package.json`, update the dev script to run both:
 
 ```json
 {
-  "name": "leasy",
-  "version": "1.0.0",
-  "type": "module",
-  "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
     "dev": "concurrently \"bun run dev:server\" \"bun run dev:client\"",
-    "dev:server": "cd apps/server && bun run --watch src/index.ts --port 4000",
-    "dev:client": "cd apps/client && bun run dev",
-    "build": "bun run build:client && bun run build:server",
-    "build:client": "cd apps/client && bun run build",
-    "build:server": "cd apps/server && bun run build",
-    "test": "playwright test",
-    "test:ui": "playwright test --ui",
-    "typecheck": "tsc -b",
-    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules",
-    "reinstall": "bun run clean && bun install"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.48.2",
-    "@types/bun": "latest",
-    "@types/node": "^22.10.5",
-    "@typescript-eslint/eslint-plugin": "^8.20.0",
-    "@typescript-eslint/parser": "^8.20.0",
-    "concurrently": "^9.1.2",
-    "eslint": "^9.18.0",
-    "typescript": "^5.7.3",
-    "vitest": "^2.1.8"
+    "dev:server": "cd apps/server && bun run dev",
+    "dev:client": "cd apps/client && bun run dev"
   }
 }
 ```
 
-### Step 4: Create Shared Package Structure
+### 4. Install Dependencies
 
 ```bash
-# Create packages directory
+bun install
+bun add -d concurrently  # For parallel execution
+```
+
+## Adding Shared Packages
+
+Create shared code packages:
+
+### 1. Create Shared Package
+
+```bash
 mkdir -p packages/shared/src
 
-# Create shared package.json
 cat > packages/shared/package.json << 'EOF'
 {
   "name": "@leasy/shared",
   "version": "1.0.0",
-  "type": "module",
   "private": true,
+  "type": "module",
   "main": "./src/index.ts",
-  "types": "./src/index.ts",
-  "scripts": {
-    "typecheck": "tsc --noEmit"
-  }
-}
-EOF
-
-# Create shared index file
-cat > packages/shared/src/index.ts << 'EOF'
-// Shared types and utilities
-export interface ApiResponse<T = unknown> {
-  data?: T;
-  error?: string;
-  status: number;
-}
-
-export const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'https://api.leasy.com'
-  : 'http://localhost:4000';
-EOF
-
-# Create shared tsconfig
-cat > packages/shared/tsconfig.json << 'EOF'
-{
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src"
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "types": "./src/index.ts"
 }
 EOF
 ```
 
-### Step 5: Create Base TypeScript Configuration
-
-Create `tsconfig.base.json` in the root:
-
-```json
-{
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "strict": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "lib": ["ESNext"],
-    "types": ["bun"]
-  },
-  "exclude": ["node_modules", "dist", "build", ".next", "out"]
-}
-```
-
-Update root `tsconfig.json`:
-
-```json
-{
-  "files": [],
-  "references": [
-    { "path": "./apps/client" },
-    { "path": "./apps/server" },
-    { "path": "./packages/shared" }
-  ]
-}
-```
-
-### Step 6: Update App Configurations
-
-#### Update apps/client/tsconfig.json
-
-```json
-{
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "composite": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "jsx": "react-jsx",
-    "types": ["vite/client", "node"],
-    "paths": {
-      "@/*": ["./src/*"],
-      "@leasy/shared": ["../../packages/shared/src"]
-    }
-  },
-  "include": ["src/**/*", "vite.config.ts"],
-  "exclude": ["node_modules", "dist"],
-  "references": [
-    { "path": "../../packages/shared" }
-  ]
-}
-```
-
-#### Update apps/server/tsconfig.json
-
-```json
-{
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "composite": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "lib": ["ESNext"],
-    "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx",
-    "types": ["@cloudflare/workers-types", "bun"],
-    "paths": {
-      "@leasy/shared": ["../../packages/shared/src"]
-    }
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"],
-  "references": [
-    { "path": "../../packages/shared" }
-  ]
-}
-```
-
-### Step 7: Update App package.json Files
-
-#### Update apps/client/package.json
-
-```json
-{
-  "name": "@leasy/client",
-  "version": "1.0.0",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@leasy/shared": "workspace:*",
-    "@tanstack/react-query": "^5.84.1",
-    "hono": "^4.8.12",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1"
-  },
-  "devDependencies": {
-    "@types/react": "^19.1.9",
-    "@types/react-dom": "^19.1.7",
-    "@vitejs/plugin-react": "^4.7.0",
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.17",
-    "vite": "^6.3.5"
-  }
-}
-```
-
-#### Update apps/server/package.json
-
-```json
-{
-  "name": "@leasy/server",
-  "version": "1.0.0",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "dev": "bun run --watch src/index.ts --port 4000",
-    "build": "tsc -b",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@leasy/shared": "workspace:*",
-    "hono": "^4.8.10",
-    "zod": "^3.24.1"
-  },
-  "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250109.0"
-  }
-}
-```
-
-### Step 8: Install Dependencies
-
-```bash
-# Install with bun (creates single lock file)
-bun install
-
-# Install concurrently for parallel dev servers
-bun add -d concurrently
-```
-
-**Verify**:
-
-- Only one `bun.lock` should exist at root
-- `node_modules` only at root (check with `find . -name node_modules -type d`)
-
-### Step 9: Clean Legacy Files
-
-```bash
-# Archive old documentation (optional - keep for reference)
-mkdir -p archive
-mv docs archive/ 2>/dev/null || true
-mv data archive/ 2>/dev/null || true
-
-# Or remove them entirely
-# rm -rf docs data
-
-# Clean up test results
-rm -rf playwright-report test-results
-
-# Remove unused files
-rm -f repomix-output.xml
-```
-
-### Step 10: Test the Setup
-
-```bash
-# Test installation
-bun install
-
-# Test development servers
-bun run dev
-
-# Test type checking
-bun run typecheck
-
-# Test builds
-bun run build
-```
-
-## Verification Checklist
-
-After completing all steps, verify:
-
-- [ ] Only one `bun.lock` file exists (at root)
-- [ ] Only one `node_modules` folder exists (at root)
-- [ ] `bun run dev` starts both client and server
-- [ ] Client runs on port 3000, server on port 4000
-- [ ] `bun run typecheck` passes without errors
-- [ ] `bun run build` completes successfully
-- [ ] No npm lock files exist anywhere
-
-## Using the Shared Package
-
-Example of importing from shared package in your apps:
+### 2. Use in Apps
 
 ```typescript
-// In apps/client/src/api.ts
-import { ApiResponse, API_BASE_URL } from '@leasy/shared';
+// In apps/server/package.json
+{
+  "dependencies": {
+    "@leasy/shared": "workspace:*"
+  }
+}
 
-// In apps/server/src/handlers.ts
-import { ApiResponse } from '@leasy/shared';
+// In code
+import { something } from "@leasy/shared";
 ```
+
+## TypeScript Configuration
+
+The project uses TypeScript project references for better monorepo support:
+
+- `tsconfig.json` at root - References all packages
+- `tsconfig.json` in each package - Package-specific config
+
+## ESLint & Prettier
+
+Code quality tools are configured at the root level:
+
+- `eslint.config.ts` - ESLint 9 flat config
+- `.prettierrc` - Prettier configuration
+- `.prettierignore` - Files to skip
+
+All packages inherit these configurations.
+
+## VS Code Integration
+
+The `.vscode/settings.json` provides:
+
+- Format on save with Prettier
+- ESLint auto-fix on save
+- TypeScript IntelliSense from workspace
+
+## Common Tasks
+
+### Add a New Package
+
+```bash
+mkdir -p apps/new-app
+# or
+mkdir -p packages/new-package
+
+# Create package.json with workspace protocol
+# Run bun install to link
+```
+
+### Remove a Package
+
+```bash
+rm -rf apps/package-name
+bun install  # Updates lockfile
+```
+
+### Check Workspace Dependencies
+
+```bash
+bun pm ls  # List all packages and dependencies
+```
+
+### Clean Everything
+
+```bash
+bun run clean  # Remove all node_modules and dist
+bun install    # Reinstall fresh
+```
+
+## Benefits of This Structure
+
+1. **Single Install** - One `bun install` for everything
+2. **Shared Dependencies** - No duplication
+3. **Consistent Versions** - All packages use same versions
+4. **Fast Installs** - Bun is significantly faster than npm/yarn
+5. **Type Safety** - TypeScript project references
+6. **Code Sharing** - Easy to share code via packages
+7. **Scalable** - Easy to add more apps/packages
 
 ## Troubleshooting
 
-### Issue: "Cannot find module '@leasy/shared'"
-
-**Solution**: Ensure you've run `bun install` after creating the shared package.
-
-### Issue: TypeScript errors about paths
-
-**Solution**: Make sure all tsconfig files extend from `tsconfig.base.json` and have proper `references`.
-
-### Issue: Dev servers not starting
-
-**Solution**: Install concurrently: `bun add -d concurrently`
-
-### Issue: Duplicate dependencies installed
-
-**Solution**: Run `bun run clean && bun install` to clear and reinstall.
-
-## Rollback Plan
-
-If something goes wrong:
+### "Cannot find module" Errors
 
 ```bash
-# Restore from backup branch
-git checkout backup-before-monorepo-cleanup
+# Ensure workspace is installed
+bun install
 
-# Or reset to previous commit
-git reset --hard HEAD~1
+# Check package name matches
+ls apps/*/package.json packages/*/package.json
+```
 
-# Reinstall dependencies
-rm -rf node_modules apps/*/node_modules
+### Multiple node_modules Folders
+
+```bash
+# Clean and reinstall
+bun run clean
 bun install
 ```
 
-## Benefits After Migration
+### Port Conflicts
 
-1. **Single lock file**: Faster installs, consistent dependencies
-2. **Shared code**: Common types and utilities in one place
-3. **Cleaner scripts**: Coordinated development with single command
-4. **Better TypeScript**: Proper project references and inheritance
-5. **Simpler maintenance**: Standard monorepo structure
+```bash
+# Kill existing processes
+pkill -f "bun|node|vite"
 
-## Next Steps
+# Or use different ports in package.json scripts
+```
 
-After completing this setup:
+## Future Expansion Ideas
 
-1. Add more shared utilities to `packages/shared` as needed
-2. Consider adding a `packages/ui` for shared React components
-3. Set up consistent linting rules at root level
-4. Add pre-commit hooks with Husky for code quality
-5. Configure CI/CD to leverage monorepo structure
+- **packages/ui** - Shared React components
+- **packages/types** - Shared TypeScript types
+- **packages/utils** - Common utilities
+- **apps/docs** - Documentation site
+- **apps/admin** - Admin dashboard
+- **apps/mobile** - React Native app
+
+The monorepo structure makes it easy to add any of these when needed.

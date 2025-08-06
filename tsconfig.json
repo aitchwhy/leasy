@@ -37,4 +37,12 @@
     "isolatedModules": true,
     "types": ["node"]
   },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "archive",
+    "playwright-report",
+    "test-results"
+  ]
 }
