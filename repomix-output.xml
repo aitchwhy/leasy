@@ -1,0 +1,403 @@
+This file is a merged representation of a subset of the codebase, containing files not matching ignore patterns, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching these patterns are excluded: *.md, docs/**/*, .cursor/**/*
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.claude/
+  settings.local.json
+apps/
+  server/
+    src/
+      index.ts
+    package.json
+    tsconfig.json
+tests/
+  e2e/
+    health.spec.ts
+    TEST_CASES.md
+.env.example
+.envrc
+.gitignore
+.node-version
+eslint.config.js
+package.json
+playwright.config.ts
+tsconfig.json
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="eslint.config.js">
+import js from '@eslint/js';
+import typescript from '@typescript-eslint/eslint-plugin';
+import typescriptParser from '@typescript-eslint/parser';
+
+export default [
+  js.configs.recommended,
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': typescript,
+    },
+    rules: {
+      ...typescript.configs.recommended.rules,
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+    },
+  },
+  {
+    ignores: ['**/dist/**', '**/node_modules/**', '**/*.js', '**/*.mjs'],
+  },
+];
+</file>
+
+<file path="tests/e2e/health.spec.ts">
+// (1) write list of test scenarios to cover
+// (2) implement exactly 1 test case into runnable (which fails)
+// (3) change code to make test + previous tests pass
+// (4) (optional) refactor to improve code
+// (5) repeat from 2 until all tests covered
+
+import { expect, test } from '@playwright/test'
+
+test('GET / returns 200 OK Hello World', async({ request }) => {
+    const res = await request.get("/")
+    expect(res.status()).toBe(200)
+})
+</file>
+
+<file path="tests/e2e/TEST_CASES.md">
+# Test cases
+
+- GET / returns 200 OK "Hello world Hank"
+- GET /health returns "200 OK"
+</file>
+
+<file path=".env.example">
+API_HOST='http://localhost:4000'
+UI_HOST='http://localhost:3000'
+</file>
+
+<file path=".envrc">
+layout node
+export FOO=BAR
+</file>
+
+<file path=".node-version">
+24
+</file>
+
+<file path="apps/server/tsconfig.json">
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["bun-types"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx"
+  },
+  "include": ["src"]
+}
+</file>
+
+<file path="apps/server/src/index.ts">
+import { Hono } from 'hono'
+
+const app = new Hono()
+
+// Health check
+app.get('/', (c) => {
+  return c.text('Hello World Hank')
+})
+export default app
+</file>
+
+<file path="playwright.config.ts">
+import { defineConfig, devices } from '@playwright/test'
+
+export default defineConfig({
+  // where to look for tests
+  testDir: './tests/e2e',
+  // run tests in parallel
+  fullyParallel: true,
+  // no retries on failed tests
+  retries: 0,
+  // limit the number of workers
+  workers: 1,
+  // reporter to use
+  reporter: 'html',
+
+  testIgnore: ['docs/**/*'],
+
+  use: {
+    // base URL to use in actions like `await page.goto('/')`
+    baseURL: 'http://localhost:3000',
+    trace: 'on-first-retry',
+  },
+
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
+
+  // launch a web server during the tests
+  webServer: [
+    {
+      command: 'bun run --filter @leasy/server dev',
+      port: 3000,
+      reuseExistingServer: true,
+    },
+  ],
+})
+</file>
+
+<file path="apps/server/package.json">
+{
+  "name": "@leasy/server",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --target=bun --outdir=dist --minify",
+    "build:prod": "bun build src/index.ts --target=bun --outdir=dist --minify --sourcemap",
+    "start": "bun run dist/index.js",
+    "start:prod": "NODE_ENV=production bun run dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "test": "bun test",
+    "clean": "rm -rf dist node_modules"
+  },
+  "dependencies": {
+    "hono": "^4.8.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.18"
+  }
+}
+</file>
+
+<file path=".claude/settings.local.json">
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(npm install)",
+      "Bash(npm view:*)",
+      "Bash(npm search:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(kill:*)",
+      "Bash(rm:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run test:e2e:*)",
+      "Bash(npx:*)",
+      "Bash(pkill:*)",
+      "Bash(true)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm run build:*)",
+      "Bash(grep:*)",
+      "Bash(timeout 10 npm run dev)",
+      "Bash(node:*)",
+      "Bash(cat:*)",
+      "Bash(npm run:*)",
+      "Bash(bun install:*)",
+      "Bash(bunx playwright:*)",
+      "Bash(bun run test:e2e:*)",
+      "Bash(mv:*)"
+    ],
+    "deny": []
+  }
+}
+</file>
+
+<file path=".gitignore">
+# Production build output
+dist/
+dist-server/
+
+# TypeScript build info
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Development environment
+.yarn/
+!.yarn/releases
+.vscode/*
+!.vscode/launch.json
+!.vscode/*.code-snippets
+.idea/workspace.xml
+.idea/usage.statistics.xml
+.idea/shelf
+
+# Dependencies
+node_modules/
+.wrangler
+
+# Environment variables
+.env
+.env.production
+.dev.vars
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Miscellaneous
+.DS_Store
+*.DS_Store
+playwright-report
+test-results
+
+
+
+.nx/cache
+.nx/workspace-data
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
+</file>
+
+<file path="tsconfig.json">
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    // Environment setup & latest features
+    "lib": ["ESNext"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "allowJs": false,
+
+    // Bundler mode
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+
+    // Debugging & Development
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Best practices
+    "strict": true,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // Some stricter flags (disabled by default)
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false,
+
+    // Misc
+    "isolatedModules": true,
+    "types": ["node"]
+  },
+}
+</file>
+
+<file path="package.json">
+{
+  "name": "leasy",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.0.0",
+    "bun": ">=1.1.0"
+  },
+  "packageManager": "bun@1.1.47",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "bun run --filter '*' build",
+    "typecheck": "bun run --filter '*' typecheck",
+    "test": "bun run --filter '*' test",
+    "test:e2e": "playwright test",
+    "lint": "bun run --filter '*' lint",
+    "clean": "rimraf '**/dist' '**/build' '**/*.tsbuildinfo'",
+    "clean:all": "bun run clean && rimraf '**/node_modules' '**/bun.lock' '**/package-lock.json'",
+    "dev": "bun run --filter '*' dev"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@playwright/test": "^1.51.0",
+    "@types/bun": "^1.1.18",
+    "@types/node": "^22.12.0",
+    "@typescript-eslint/eslint-plugin": "^8.30.0",
+    "@typescript-eslint/parser": "^8.30.0",
+    "eslint": "^9.20.0",
+    "playwright": "^1.51.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}
+</file>
+
+</files>
