@@ -8,8 +8,8 @@
     "build": "bun build src/index.ts --target=bun --outdir=dist --minify",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
-    "test": "vitest test",
-    "test:watch": "vitest watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "clean": "rm -rf dist node_modules"
   },
   "dependencies": {
@@ -17,6 +17,7 @@
     "zod": "^3.25.0"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.18"
+    "@types/bun": "^1.1.18",
+    "vitest": "^3.2.4"
   }
 }

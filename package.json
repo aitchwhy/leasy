@@ -15,12 +15,11 @@
   "scripts": {
     "dev": "bun run --filter '*' dev",
     "prebuild": "bun install --frozen-lockfile",
-    // Run tests in all packages that have a test script
+    "build": "bun run --filter '*' build",
     "test": "bun run --filter '*' test",
     "test:server": "bun run --filter @leasy/server test",
     "test:watch": "bun run --filter '*' test:watch",
     "test:e2e": "playwright test",
-    "build": "bun run --filter '*' build",
     "typecheck": "tsc --build",
     "lint": "eslint . --ext .ts,.tsx",
     "clean": "rimraf 'dist' 'apps/**/dist' 'node_modules' 'apps/**/node_modules'"
@@ -36,6 +35,6 @@
     "playwright": "^1.54.2",
     "rimraf": "^6.0.1",
     "typescript": "^5.9.2",
-    "vitest": "^2.1.9"
+    "vitest": "^3.2.4"
   }
 }
