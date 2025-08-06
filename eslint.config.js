@@ -25,6 +25,6 @@ export default [
     },
   },
   {
-    ignores: ['**/dist/**', '**/node_modules/**', '**/*.js', '**/*.mjs'],
+    ignores: ['**/dist/**', '**/node_modules/**', '**/*.js', '**/*.mjs', 'docs', 'vitest.config.ts'],
   },
 ];
