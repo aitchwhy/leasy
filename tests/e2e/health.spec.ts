@@ -6,7 +6,8 @@
 
 import { expect, test } from '@playwright/test'
 
-test('GET / returns 200 OK Hello World', async({ request }) => {
+test('GET / returns 200 OK', async({ request }) => {
     const res = await request.get("/")
-    expect(res.status()).toBe(200)
+    expect(res.ok()).toBeTruthy()
+    expect(await res.text()).toBe("OK")
 })
