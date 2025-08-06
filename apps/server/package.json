@@ -1,27 +1,21 @@
 {
   "name": "@leasy/server",
-  "version": "1.0.0",
-  "type": "module",
+  "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev:server": "bun run --filter @leasy/server dev",
-    "dev:client": "bun run --filter @leasy/client dev",
-    "build:server": "bun run --filter @leasy/server build",
-    "build:client": "bun run --filter @leasy/client build",
-    "build": "bun run build:client && bun run build:server",
-    "test": "bun test && playwright test",
-    "clean": "rm -rf node_modules apps/*/node_modules",
-    "typecheck": "tsc -b"
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --target=bun --outdir=dist",
+    "start": "bun run dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "test": "bun test"
   },
   "dependencies": {
-    "hono": "^4.8.10",
+    "hono": "^4.8.12",
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250109.0",
-    "@typescript-eslint/eslint-plugin": "^8.20.0",
-    "@typescript-eslint/parser": "^8.20.0",
-    "eslint": "^9.18.0",
-    "wrangler": "^4.17.0"
+    "@types/bun": "^1.2.19"
   }
 }

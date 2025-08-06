@@ -2,6 +2,10 @@
 dist/
 dist-server/
 
+# TypeScript build info
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
 # Development environment
 .yarn/
 !.yarn/releases
@@ -32,5 +36,13 @@ lerna-debug.log*
 
 # Miscellaneous
 .DS_Store
+*.DS_Store
 playwright-report
 test-results
+
+
+
+.nx/cache
+.nx/workspace-data
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md

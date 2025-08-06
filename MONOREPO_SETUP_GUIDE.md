@@ -1,5 +1,239 @@
 # Monorepo Setup Guide - Simplifying Leasy
 
+## Minimal
+
+# Minimal Monorepo Setup
+
+## Current Issues Found
+
+⚠️ **Critical: Server app is missing package.json file!**
+
+The server directory exists but has no package.json, which breaks the monorepo workspace setup.
+
+## Quick Fix (2 minutes)
+
+### 1. Create the missing server package.json
+
+```bash
+# THIS IS CRITICAL - Server has no package.json!
+cat > apps/server/package.json << 'EOF'
+{
+  "name": "@leasy/server",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --watch src/index.ts --port 4000",
+    "build": "echo 'No build step needed for Bun'"
+  },
+  "dependencies": {
+    "hono": "^4.8.10"
+  }
+}
+EOF
+```
+
+### 2. Clean up and simplify client (optional)
+
+The client has many dependencies. For minimal setup:
+
+```json
+{
+  "name": "@leasy/client",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.3.5"
+  }
+}
+```
+
+### 3. Clean and reinstall
+
+```bash
+# Remove any existing node_modules and lock files
+rm -rf node_modules apps/*/node_modules
+rm -f bun.lock package-lock.json
+
+# Install everything fresh (creates single bun.lock at root)
+bun install
+
+# Verify concurrently is installed (should already be in root devDependencies)
+# If not: bun add -d concurrently
+```
+
+### 4. Run the monorepo
+
+```bash
+# Start both apps with one command
+bun run dev
+
+# Client runs on http://localhost:3000
+# Server runs on http://localhost:4000
+```
+
+## Verify Everything Works
+
+After setup, you should have:
+
+✅ **Server package.json exists** at `apps/server/package.json`
+✅ **Single bun.lock** at project root
+✅ **Single node_modules** at project root
+✅ **Both apps start** with `bun run dev`
+
+## All Available Commands
+
+```bash
+bun run dev        # Start client + server
+bun run build      # Build both apps
+bun run test       # Run Playwright tests
+bun run clean      # Remove all node_modules
+bun run reinstall  # Clean and reinstall everything
+```
+
+## Common Issues
+
+**Error: "Cannot find module '@leasy/server'"**
+
+- The server package.json is missing. Run step 1 to create it.
+
+**Error: "concurrently: command not found"**
+
+```bash
+bun add -d concurrently
+```
+
+**Ports already in use:**
+
+```bash
+# Kill any running processes
+pkill -f "bun|vite|node"
+```
+
+## Ultra-Minimal Alternative
+
+If you don't want any monorepo setup, just run in two terminals:
+
+```bash
+# Terminal 1 - Client
+cd apps/client && bun run dev
+
+# Terminal 2 - Server
+cd apps/server && bun run --watch src/index.ts --port 4000
+```
+
+But the monorepo setup is worth it for single-command development.
+
+## Nx vs Minimal Approach Comparison
+
+### Nx Monorepo Tool
+
+**Pros:**
+
+- ✅ **Intelligent caching** - Only rebuilds what changed (great for large projects)
+- ✅ **Task orchestration** - Automatically runs tasks in dependency order
+- ✅ **Affected commands** - Test/build only what's affected by changes
+- ✅ **Nx Cloud** - Distributed caching across team/CI (you have nxCloudId configured)
+- ✅ **Generators** - Scaffold new apps/libs with consistent structure
+- ✅ **Dependency graph** - Visualize project dependencies (`nx graph`)
+- ✅ **Plugin ecosystem** - Vite, React, ESLint plugins with best practices
+- ✅ **Incremental builds** - Speed up CI/CD pipelines significantly
+
+**Cons:**
+
+- ❌ **Complexity overhead** - 21MB+ dependency, learning curve
+- ❌ **Configuration files** - nx.json, project.json per app, more to maintain
+- ❌ **Overkill for simple projects** - Your 2-app setup doesn't need orchestration
+- ❌ **Bun compatibility** - Nx primarily designed for npm/yarn/pnpm
+- ❌ **Mental overhead** - Adds concepts like executors, generators, affected
+- ❌ **Tool lock-in** - Harder to migrate away once deeply integrated
+
+### Minimal Bun Workspace Approach
+
+**Pros:**
+
+- ✅ **Dead simple** - Just package.json files and bun workspaces
+- ✅ **Zero config** - Works out of the box with bun
+- ✅ **Fast installs** - Bun is significantly faster than npm/yarn
+- ✅ **Lightweight** - No extra tools or abstractions
+- ✅ **Native TypeScript** - Bun runs TS directly, no build step for server
+- ✅ **Easy to understand** - Standard npm workspace concepts
+- ✅ **No lock-in** - Easy to migrate to any other tool later
+
+**Cons:**
+
+- ❌ **No caching** - Rebuilds everything every time
+- ❌ **Manual orchestration** - You manage task dependencies
+- ❌ **No affected detection** - Tests/builds run for all apps
+- ❌ **Basic scripts only** - Using concurrently for parallel tasks
+- ❌ **No visualization** - Can't see project dependency graph
+- ❌ **Scales poorly** - Gets messy with 10+ apps/packages
+
+### Recommendation for Your Project
+
+**Use the Minimal Approach (current setup) because:**
+
+1. **Project Size** - You have 2 apps (client/server), Nx benefits kick in at 5+ apps
+2. **Team Size** - Small team doesn't need distributed caching
+3. **Build Speed** - Bun is already fast, your apps are small
+4. **Complexity** - Your apps are simple, no complex dependency chains
+5. **Learning Curve** - Get building immediately vs learning Nx concepts
+
+**Consider Nx when you have:**
+
+- 5+ applications or packages
+- Multiple developers needing shared cache
+- Complex build pipelines with many steps
+- Need for consistent code generation
+- CI/CD time becomes a bottleneck
+- Monorepo with different tech stacks (Go, Python, etc.)
+
+### Quick Migration Path
+
+**If you want to try Nx later:**
+
+```bash
+# Keep your current structure, just add Nx
+npx nx@latest init
+
+# Or full Nx workspace setup
+npx create-nx-workspace@latest --preset=npm --packageManager=bun
+```
+
+**Current Nx in your project:**
+
+- You have `nx` installed and `nx.json` with cloud ID
+- But no actual Nx configuration for apps
+- This gives you worst of both worlds (dependency without benefits)
+
+**To remove unused Nx:**
+
+```bash
+bun remove nx
+rm nx.json
+```
+
+### Bottom Line
+
+For a simple client/server monorepo like yours, the minimal Bun workspace approach is perfect. It's fast, simple, and maintainable. Save Nx for when you actually need its advanced features - you can always add it later without restructuring.
+
+---
+
 ## Current Issues
 
 Your monorepo currently has several issues that make it harder to maintain:
@@ -115,8 +349,8 @@ export interface ApiResponse<T = unknown> {
   status: number;
 }
 
-export const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://api.leasy.com' 
+export const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? 'https://api.leasy.com'
   : 'http://localhost:4000';
 EOF
 
@@ -174,7 +408,7 @@ Update root `tsconfig.json`:
 
 ### Step 6: Update App Configurations
 
-#### Update apps/client/tsconfig.json:
+#### Update apps/client/tsconfig.json
 
 ```json
 {
@@ -199,7 +433,7 @@ Update root `tsconfig.json`:
 }
 ```
 
-#### Update apps/server/tsconfig.json:
+#### Update apps/server/tsconfig.json
 
 ```json
 {
@@ -226,7 +460,7 @@ Update root `tsconfig.json`:
 
 ### Step 7: Update App package.json Files
 
-#### Update apps/client/package.json:
+#### Update apps/client/package.json
 
 ```json
 {
@@ -259,7 +493,7 @@ Update root `tsconfig.json`:
 }
 ```
 
-#### Update apps/server/package.json:
+#### Update apps/server/package.json
 
 ```json
 {
@@ -293,7 +527,8 @@ bun install
 bun add -d concurrently
 ```
 
-**Verify**: 
+**Verify**:
+
 - Only one `bun.lock` should exist at root
 - `node_modules` only at root (check with `find . -name node_modules -type d`)
 
