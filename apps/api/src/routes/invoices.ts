@@ -101,6 +101,42 @@ app.get('/', async (c) => {
     return c.json(result);
 });
 
+app.get('/:id', async (c) => {
+    const id = Number(c.req.param('id'));
+    if (isNaN(id)) return c.json({ error: 'Invalid ID' }, 400);
+
+    const sql = neon(env.DATABASE_URL);
+    const db = drizzle(sql);
+
+    const invoice = await db.select().from(invoices).where(eq(invoices.id, id));
+    if (invoice.length === 0) return c.json({ error: 'Invoice not found' }, 404);
+
+    const lines = await db.select().from(invoiceLineItems).where(eq(invoiceLineItems.invoiceId, id));
+
+    // Fetch related data (Lease, Tenant, Unit)
+    // In a real app, we might want to join these or fetch them.
+    // For PDF, we need Tenant Name, Unit Number, etc.
+    // Let's do a join or separate fetches. Drizzle doesn't support deep relations easily without `with`.
+    // We'll just fetch lease and tenant manually for now or use a join query.
+
+    const leaseRes = await db.select().from(leases).where(eq(leases.id, invoice[0].leaseId));
+    const lease = leaseRes[0];
+
+    const tenantRes = await db.select().from(tenants).where(eq(tenants.id, lease.tenantId));
+    const tenant = tenantRes[0];
+
+    const unitRes = await db.select().from(units).where(eq(units.id, lease.unitId));
+    const unit = unitRes[0];
+
+    return c.json({
+        ...invoice[0],
+        lineItems: lines,
+        lease,
+        tenant,
+        unit,
+    });
+});
+
 const updateStatusSchema = z.object({
     status: z.enum(['DRAFT', 'ISSUED', 'PAID', 'OVERDUE', 'VOID']),
 });
