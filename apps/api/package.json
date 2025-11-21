@@ -1,0 +1,21 @@
+{
+  "name": "@leasy/api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev src/index.ts",
+    "deploy": "wrangler deploy --minify src/index.ts"
+  },
+  "dependencies": {
+    "hono": "^4.10.6",
+    "@hono/clerk-auth": "^2.0.0",
+    "@hono/zod-validator": "^0.2.1",
+    "@clerk/backend": "^1.0.0",
+    "@leasy/db": "workspace:*",
+    "@leasy/validators": "workspace:*",
+    "@leasy/domain": "workspace:*"
+  },
+  "devDependencies": {
+    "wrangler": "^3.19.0"
+  }
+}

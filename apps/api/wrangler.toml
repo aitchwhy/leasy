@@ -1,0 +1,6 @@
+name = "leasy-api"
+main = "src/index.ts"
+compatibility_date = "2024-04-01"
+
+[vars]
+NODE_ENV = "development"
