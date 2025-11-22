@@ -3,13 +3,12 @@ import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { units, buildings, utilityMeters } from '@leasy/db';
 import { eq } from 'drizzle-orm';
-import { env } from '@leasy/config';
+import { getDb, Bindings } from '../lib/db';
 
-const app = new Hono();
+const app = new Hono<{ Bindings: Bindings }>();
 
 app.get('/', async (c) => {
-  const sql = neon(env.DATABASE_URL);
-  const db = drizzle(sql);
+  const db = getDb(c);
 
   const result = await db.select({
       id: units.id,

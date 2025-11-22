@@ -5,21 +5,19 @@ import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { tenants } from '@leasy/db';
 import { eq } from 'drizzle-orm';
-import { env } from '@leasy/config';
+import { getDb, Bindings } from '../lib/db';
 
-const app = new Hono();
+const app = new Hono<{ Bindings: Bindings }>();
 
 app.get('/', async (c) => {
-  const sql = neon(env.DATABASE_URL);
-  const db = drizzle(sql);
+  const db = getDb(c);
   const result = await db.select().from(tenants);
   return c.json(result);
 });
 
 app.post('/', zValidator('json', createTenantSchema), async (c) => {
   const data = c.req.valid('json');
-  const sql = neon(env.DATABASE_URL);
-  const db = drizzle(sql);
+  const db = getDb(c);
 
   try {
     const result = await db.insert(tenants).values(data).returning();
@@ -37,8 +35,7 @@ app.put('/:id', zValidator('json', updateTenantSchema), async (c) => {
   if (isNaN(id)) return c.json({ error: 'Invalid ID' }, 400);
 
   const data = c.req.valid('json');
-  const sql = neon(env.DATABASE_URL);
-  const db = drizzle(sql);
+  const db = getDb(c);
 
   const result = await db.update(tenants)
     .set(data)

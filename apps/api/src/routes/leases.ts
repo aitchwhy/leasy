@@ -5,13 +5,12 @@ import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { leases } from '@leasy/db';
 import { eq, and, ne } from 'drizzle-orm';
-import { env } from '@leasy/config';
+import { getDb, Bindings } from '../lib/db';
 
-const app = new Hono();
+const app = new Hono<{ Bindings: Bindings }>();
 
 app.get('/', async (c) => {
-  const sql = neon(env.DATABASE_URL);
-  const db = drizzle(sql);
+  const db = getDb(c);
   const unitId = c.req.query('unitId');
   const tenantId = c.req.query('tenantId');
 
@@ -33,8 +32,7 @@ app.get('/', async (c) => {
 
 app.post('/', zValidator('json', createLeaseSchema), async (c) => {
   const data = c.req.valid('json');
-  const sql = neon(env.DATABASE_URL);
-  const db = drizzle(sql);
+  const db = getDb(c);
 
   // Domain Logic: Check for overlapping active leases for the same unit
   if (data.isActive) {
@@ -58,8 +56,7 @@ app.put('/:id', zValidator('json', updateLeaseSchema), async (c) => {
   if (isNaN(id)) return c.json({ error: 'Invalid ID' }, 400);
 
   const data = c.req.valid('json');
-  const sql = neon(env.DATABASE_URL);
-  const db = drizzle(sql);
+  const db = getDb(c);
 
   // Domain Logic: If setting to active, check for overlaps (excluding self)
   if (data.isActive === true) {

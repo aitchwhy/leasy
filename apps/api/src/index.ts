@@ -1,16 +1,16 @@
 import { Hono } from 'hono';
-import { env } from '@leasy/config';
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import * as schema from '@leasy/db';
 
 import { authMiddleware, requireAuth } from './middleware/auth';
+import { Bindings, getDb } from './lib/db';
 
-const app = new Hono();
+const app = new Hono<{ Bindings: Bindings }>();
 
 // Public routes
 app.get('/health', (c) => {
-  return c.json({ status: 'ok', env: env.NODE_ENV });
+  return c.json({ status: 'ok', env: c.env.NODE_ENV });
 });
 
 import tenantsApp from './routes/tenants';
@@ -29,8 +29,7 @@ app.route('/api/invoices', invoicesApp);
 app.route('/api/units', unitsApp);
 
 app.get('/db-check', requireAuth, async (c) => {
-  const sql = neon(env.DATABASE_URL);
-  const db = drizzle(sql, { schema });
+  const db = getDb(c);
   try {
     const result = await db.select().from(schema.buildings).limit(1);
     return c.json({ status: 'connected', result });
