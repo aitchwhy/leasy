@@ -21,6 +21,7 @@ import unitsApp from './routes/units';
 
 // Protected routes
 app.use('/api/*', authMiddleware);
+app.use('/api/*', requireAuth);
 
 app.route('/api/tenants', tenantsApp);
 app.route('/api/leases', leasesApp);
@@ -31,7 +32,7 @@ app.route('/api/units', unitsApp);
 app.get('/db-check', requireAuth, async (c) => {
   const db = getDb(c);
   try {
-    const result = await db.select().from(schema.buildings).limit(1);
+    const result = await db.select().from(schema.buildings as any).limit(1);
     return c.json({ status: 'connected', result });
   } catch (e) {
     return c.json({ status: 'error', error: String(e) }, 500);
