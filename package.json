@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "dev": "nx run-many --target=dev",
     "lint": "nx run-many --target=lint",
     "typecheck": "nx run-many --target=typecheck",
     "build": "nx run-many --target=build"
