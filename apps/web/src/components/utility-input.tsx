@@ -30,7 +30,7 @@ export function UtilityInput() {
     queryKey: ['units-with-meters'],
     queryFn: async () => {
       const token = await getToken();
-      return apiClient<{ id: number, unitNumber: string, buildingName: string, meters: { id: number, type: string }[] }[]>('/api/units', { token });
+      return apiClient.get<{ id: number, unitNumber: string, buildingName: string, meters: { id: number, type: string }[] }[]>('/api/units', { token });
     },
   });
 
@@ -48,14 +48,9 @@ export function UtilityInput() {
   // Alternatively, we can just map over units and register inputs dynamically.
 
   const mutation = useMutation({
-    mutationFn: async (data: BulkReadingFormValues) => {
+    mutationFn: async (data: any) => {
       const token = await getToken();
-      // Filter out empty readings if needed, but schema enforces required
-      return apiClient('/api/utilities/readings/bulk', {
-        method: 'POST',
-        body: JSON.stringify(data.readings),
-        token,
-      });
+      return apiClient.post('/utilities/readings', data, { token });
     },
     onSuccess: () => {
       toast.success('Readings submitted successfully');

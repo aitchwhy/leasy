@@ -23,7 +23,7 @@ export function LeaseList() {
     queryKey: ['leases'],
     queryFn: async () => {
       const token = await getToken();
-      return apiClient<Lease[]>('/api/leases', { token });
+      return apiClient.get<Lease[]>('/api/leases', { token });
     },
   });
 

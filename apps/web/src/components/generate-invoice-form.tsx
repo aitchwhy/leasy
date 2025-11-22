@@ -32,13 +32,10 @@ export function GenerateInvoiceForm() {
 // ...
 
   const mutation = useMutation({
+
     mutationFn: async (data: GenerateInvoiceFormValues) => {
       const token = await getToken();
-      return apiClient('/api/invoices/generate', {
-        method: 'POST',
-        body: JSON.stringify(data),
-        token,
-      });
+      return apiClient.post('/invoices/generate', data, { token });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });

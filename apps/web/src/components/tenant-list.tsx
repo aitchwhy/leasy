@@ -21,7 +21,7 @@ export function TenantList() {
     queryKey: ['tenants'],
     queryFn: async () => {
       const token = await getToken();
-      return apiClient<Tenant[]>('/api/tenants', { token });
+      return apiClient.get<Tenant[]>('/api/tenants', { token });
     },
   });
 

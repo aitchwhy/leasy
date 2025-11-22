@@ -32,11 +32,7 @@ export function TenantForm() {
   const mutation = useMutation({
     mutationFn: async (data: TenantFormValues) => {
       const token = await getToken();
-      return apiClient('/api/tenants', {
-        method: 'POST',
-        body: JSON.stringify(data),
-        token,
-      });
+      return apiClient.post('/tenants', data, { token });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tenants'] });

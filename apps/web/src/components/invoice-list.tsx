@@ -24,18 +24,15 @@ export function InvoiceList() {
     queryKey: ['invoices'],
     queryFn: async () => {
       const token = await getToken();
-      return apiClient<Invoice[]>('/api/invoices', { token });
+      return apiClient.get<Invoice[]>('/api/invoices', { token });
     },
   });
 
   const statusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: number, status: string }) => {
+
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
       const token = await getToken();
-      return apiClient(`/api/invoices/${id}/status`, {
-        method: 'PUT',
-        body: JSON.stringify({ status }),
-        token,
-      });
+      return apiClient.put(`/invoices/${id}/status`, { status }, { token });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });

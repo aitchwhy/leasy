@@ -41,7 +41,7 @@ export function LeaseForm() {
       queryKey: ['units'],
       queryFn: async () => {
           const token = await getToken();
-          return apiClient<{ id: number, unitNumber: string, buildingName: string }[]>('/api/units', { token });
+          return apiClient.get<{ id: number, unitNumber: string, buildingName: string }[]>('/api/units', { token });
       }
   });
 
@@ -49,24 +49,14 @@ export function LeaseForm() {
       queryKey: ['tenants'],
       queryFn: async () => {
           const token = await getToken();
-          return apiClient<{ id: number, name: string }[]>('/api/tenants', { token });
+          return apiClient.get<{ id: number, name: string }[]>('/api/tenants', { token });
       }
   });
 
   const mutation = useMutation({
     mutationFn: async (data: LeaseFormValues) => {
       const token = await getToken();
-      // Clean up empty string endDate to undefined if needed, or let Zod handle it (schema allows literal '')
-      // But API expects optional.
-      const payload = {
-          ...data,
-          endDate: data.endDate === '' ? undefined : data.endDate,
-      };
-      return apiClient('/api/leases', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-        token,
-      });
+      return apiClient.post('/leases', data, { token });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leases'] });
