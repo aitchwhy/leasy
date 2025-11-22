@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const envSchema = z.object({
-  NEXT_PUBLIC_API_URL: z.string().url().default('http://localhost:8787'),
+  NEXT_PUBLIC_API_URL: z.string().url().default('http://localhost:8787/api'),
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string().min(1),
 });
 
