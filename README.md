@@ -22,6 +22,14 @@ Leasy is an enterprise-grade property management system designed to streamline t
   - `domain`: Shared domain types and business logic.
   - `validators`: Shared Zod schemas for validation.
 
+## ✨ Features
+
+- **Dashboard**: Overview of active tenants, leases, and pending invoices.
+- **Tenant Management**: Onboard and manage tenants and their lease agreements.
+- **Utility Tracking**: Bulk input for electricity and water readings with multi-meter support.
+- **Automated Invoicing**: Generate monthly invoices with automatic VAT calculations (Korean tax rules).
+- **PDF Export**: Download professional invoices instantly.
+
 ## 🛠️ Getting Started
 
 ### Prerequisites
