@@ -18,7 +18,7 @@ app.post('/readings', zValidator('json', z.array(utilityReadingSchema)), async (
   }
 
   // Bulk insert
-  const result = await db.insert(utilityReadings).values(data).returning();
+  const result = await db.insert(utilityReadings as any).values(data).returning() as any[];
 
   return c.json({ count: result.length, readings: result }, 201);
 });

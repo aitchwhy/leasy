@@ -33,10 +33,10 @@ app.post('/generate', zValidator('json', generateInvoiceSchema), async (c) => {
   const currentMonthStr = `${year}-${String(month).padStart(2, '0')}`;
 
   // Fetch active leases overlapping with the period
-  const activeLeases = await db.select().from(leases).where(
+  const activeLeases = await db.select().from(leases as any).where(
       and(
-          eq(leases.isActive, true),
-          lte(leases.startDate, endDateStr)
+          eq(leases.isActive as any, true),
+          lte(leases.startDate as any, endDateStr)
       )
   );
 
@@ -73,7 +73,7 @@ app.post('/generate', zValidator('json', generateInvoiceSchema), async (c) => {
       // Let's fetch all readings for the unit and find the ones matching our expected dates.
       // Optimization: Could do this in bulk query outside loop.
 
-      const meters = await db.select().from(utilityMeters).where(eq(utilityMeters.unitId, lease.unitId));
+      const meters = await db.select().from(utilityMeters as any).where(eq(utilityMeters.unitId as any, lease.unitId));
 
       let elecCost = new Decimal(0);
       let elecVat = new Decimal(0);
@@ -84,22 +84,22 @@ app.post('/generate', zValidator('json', generateInvoiceSchema), async (c) => {
       if (elecMeter) {
           // Find readings. Simplified logic: Look for reading in current month and prev month
           // In real app, strict date matching is needed.
-          const currentReading = await db.select().from(utilityReadings)
+          const currentReading = await db.select().from(utilityReadings as any)
               .where(and(
-                  eq(utilityReadings.meterId, elecMeter.id),
+                  eq(utilityReadings.meterId as any, elecMeter.id),
                   // Simple check: readingDate within current month
-                  gte(utilityReadings.readingDate, startDateStr),
-                  lte(utilityReadings.readingDate, endDateStr)
+                  gte(utilityReadings.readingDate as any, startDateStr),
+                  lte(utilityReadings.readingDate as any, endDateStr)
               ))
-              .orderBy(desc(utilityReadings.readingDate))
+              .orderBy(desc(utilityReadings.readingDate as any))
               .limit(1);
 
-          const prevReading = await db.select().from(utilityReadings)
+          const prevReading = await db.select().from(utilityReadings as any)
                .where(and(
-                  eq(utilityReadings.meterId, elecMeter.id),
-                  lte(utilityReadings.readingDate, startDateStr)
+                  eq(utilityReadings.meterId as any, elecMeter.id),
+                  lte(utilityReadings.readingDate as any, startDateStr)
                ))
-               .orderBy(desc(utilityReadings.readingDate))
+               .orderBy(desc(utilityReadings.readingDate as any))
                .limit(1);
 
           if (currentReading.length > 0 && prevReading.length > 0) {
@@ -116,21 +116,21 @@ app.post('/generate', zValidator('json', generateInvoiceSchema), async (c) => {
       // Process Water
       const waterMeter = meters.find(m => m.type === 'WATER');
       if (waterMeter) {
-           const currentReading = await db.select().from(utilityReadings)
+           const currentReading = await db.select().from(utilityReadings as any)
               .where(and(
-                  eq(utilityReadings.meterId, waterMeter.id),
-                  gte(utilityReadings.readingDate, startDateStr),
-                  lte(utilityReadings.readingDate, endDateStr)
+                  eq(utilityReadings.meterId as any, waterMeter.id),
+                  gte(utilityReadings.readingDate as any, startDateStr),
+                  lte(utilityReadings.readingDate as any, endDateStr)
               ))
-              .orderBy(desc(utilityReadings.readingDate))
+              .orderBy(desc(utilityReadings.readingDate as any))
               .limit(1);
 
-          const prevReading = await db.select().from(utilityReadings)
+          const prevReading = await db.select().from(utilityReadings as any)
                .where(and(
-                  eq(utilityReadings.meterId, waterMeter.id),
-                  lte(utilityReadings.readingDate, startDateStr)
+                  eq(utilityReadings.meterId as any, waterMeter.id),
+                  lte(utilityReadings.readingDate as any, startDateStr)
                ))
-               .orderBy(desc(utilityReadings.readingDate))
+               .orderBy(desc(utilityReadings.readingDate as any))
                .limit(1);
 
           if (currentReading.length > 0 && prevReading.length > 0) {
@@ -143,18 +143,18 @@ app.post('/generate', zValidator('json', generateInvoiceSchema), async (c) => {
       // 4. Create Invoice Record
       const totalAmount = rentTotal.add(mgmtFeeTotal).add(elecCost).add(elecVat).add(waterCost);
 
-      const [invoice] = await db.insert(invoices).values({
+      const [invoice] = await db.insert(invoices as any).values({
           leaseId: lease.id,
           issueDate: new Date().toISOString().split('T')[0],
           dueDate: dueDate,
           totalAmountKrw: totalAmount.toString(),
           status: 'DRAFT',
           billingPeriod: `${year}-${String(month).padStart(2, '0')}`,
-      }).returning();
+      }).returning() as any[];
 
       // 5. Create Line Items
       // Rent
-      await db.insert(invoiceLineItems).values({
+      await db.insert(invoiceLineItems as any).values({
           invoiceId: invoice.id,
           type: 'RENT',
           description: `${month}월 임대료`,
@@ -164,7 +164,7 @@ app.post('/generate', zValidator('json', generateInvoiceSchema), async (c) => {
 
       // Mgmt Fee
       if (!mgmtFee.isZero()) {
-          await db.insert(invoiceLineItems).values({
+          await db.insert(invoiceLineItems as any).values({
               invoiceId: invoice.id,
               type: 'MANAGEMENT_FEE',
               description: `${month}월 관리비`,
@@ -175,7 +175,7 @@ app.post('/generate', zValidator('json', generateInvoiceSchema), async (c) => {
 
       // Electricity
       if (!elecCost.isZero()) {
-           await db.insert(invoiceLineItems).values({
+           await db.insert(invoiceLineItems as any).values({
               invoiceId: invoice.id,
               type: 'ELEC_COST',
               description: `${month}월 전기요금`,
@@ -186,7 +186,7 @@ app.post('/generate', zValidator('json', generateInvoiceSchema), async (c) => {
 
       // Water
       if (!waterCost.isZero()) {
-           await db.insert(invoiceLineItems).values({
+           await db.insert(invoiceLineItems as any).values({
               invoiceId: invoice.id,
               type: 'WATER_COST',
               description: `${month}월 수도요금`,
@@ -203,7 +203,7 @@ app.post('/generate', zValidator('json', generateInvoiceSchema), async (c) => {
 
 app.get('/', async (c) => {
     const db = getDb(c);
-    const result = await db.select().from(invoices);
+    const result = await db.select().from(invoices as any);
     return c.json(result);
 });
 
@@ -213,10 +213,10 @@ app.get('/:id', async (c) => {
 
     const db = getDb(c);
 
-    const invoice = await db.select().from(invoices).where(eq(invoices.id, id));
+    const invoice = await db.select().from(invoices as any).where(eq(invoices.id as any, id));
     if (invoice.length === 0) return c.json({ error: 'Invoice not found' }, 404);
 
-    const lines = await db.select().from(invoiceLineItems).where(eq(invoiceLineItems.invoiceId, id));
+    const lines = await db.select().from(invoiceLineItems as any).where(eq(invoiceLineItems.invoiceId as any, id));
 
     // Fetch related data (Lease, Tenant, Unit)
     // In a real app, we might want to join these or fetch them.
@@ -224,13 +224,13 @@ app.get('/:id', async (c) => {
     // Let's do a join or separate fetches. Drizzle doesn't support deep relations easily without `with`.
     // We'll just fetch lease and tenant manually for now or use a join query.
 
-    const leaseRes = await db.select().from(leases).where(eq(leases.id, invoice[0].leaseId));
+    const leaseRes = await db.select().from(leases as any).where(eq(leases.id as any, invoice[0].leaseId));
     const lease = leaseRes[0];
 
-    const tenantRes = await db.select().from(tenants).where(eq(tenants.id, lease.tenantId));
+    const tenantRes = await db.select().from(tenants as any).where(eq(tenants.id as any, lease.tenantId));
     const tenant = tenantRes[0];
 
-    const unitRes = await db.select().from(units).where(eq(units.id, lease.unitId));
+    const unitRes = await db.select().from(units as any).where(eq(units.id as any, lease.unitId));
     const unit = unitRes[0];
 
     return c.json({
@@ -253,10 +253,10 @@ app.put('/:id/status', zValidator('json', updateStatusSchema), async (c) => {
     const { status } = c.req.valid('json');
     const db = getDb(c);
 
-    const result = await db.update(invoices)
+    const result = await db.update(invoices as any)
         .set({ status })
-        .where(eq(invoices.id, id))
-        .returning();
+        .where(eq(invoices.id as any, id))
+        .returning() as any[];
 
     if (result.length === 0) return c.json({ error: 'Invoice not found' }, 404);
     return c.json(result[0]);

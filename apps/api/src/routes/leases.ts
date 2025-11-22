@@ -14,16 +14,16 @@ app.get('/', async (c) => {
   const unitId = c.req.query('unitId');
   const tenantId = c.req.query('tenantId');
 
-  let query = db.select().from(leases).$dynamic();
+  let query = db.select().from(leases as any).$dynamic();
 
   if (unitId) {
-    query = query.where(eq(leases.unitId, Number(unitId)));
+    query = query.where(eq(leases.unitId as any, Number(unitId)));
   }
   if (tenantId) {
       // If both are present, we need AND logic.
       // Drizzle dynamic queries are a bit tricky with multiple wheres if not chained carefully.
       // But chaining .where() adds AND.
-    query = query.where(eq(leases.tenantId, Number(tenantId)));
+    query = query.where(eq(leases.tenantId as any, Number(tenantId)));
   }
 
   const result = await query;
@@ -36,10 +36,10 @@ app.post('/', zValidator('json', createLeaseSchema), async (c) => {
 
   // Domain Logic: Check for overlapping active leases for the same unit
   if (data.isActive) {
-      const existing = await db.select().from(leases)
+      const existing = await db.select().from(leases as any)
         .where(and(
-            eq(leases.unitId, data.unitId),
-            eq(leases.isActive, true)
+            eq(leases.unitId as any, data.unitId),
+            eq(leases.isActive as any, true)
         ));
 
       if (existing.length > 0) {
@@ -47,7 +47,7 @@ app.post('/', zValidator('json', createLeaseSchema), async (c) => {
       }
   }
 
-  const result = await db.insert(leases).values(data).returning();
+  const result = await db.insert(leases as any).values(data).returning() as any[];
   return c.json(result[0], 201);
 });
 
@@ -63,16 +63,16 @@ app.put('/:id', zValidator('json', updateLeaseSchema), async (c) => {
       // We need to fetch the unitId if not provided in update
       let unitId = data.unitId;
       if (!unitId) {
-          const current = await db.select().from(leases).where(eq(leases.id, id));
+          const current = await db.select().from(leases as any).where(eq(leases.id as any, id));
           if (current.length === 0) return c.json({ error: 'Lease not found' }, 404);
           unitId = current[0].unitId;
       }
 
-      const existing = await db.select().from(leases)
+      const existing = await db.select().from(leases as any)
         .where(and(
-            eq(leases.unitId, unitId!),
-            eq(leases.isActive, true),
-            ne(leases.id, id)
+            eq(leases.unitId as any, unitId!),
+            eq(leases.isActive as any, true),
+            ne(leases.id as any, id)
         ));
 
       if (existing.length > 0) {
@@ -80,13 +80,24 @@ app.put('/:id', zValidator('json', updateLeaseSchema), async (c) => {
       }
   }
 
-  const result = await db.update(leases)
+  const result = await db.update(leases as any)
     .set(data)
-    .where(eq(leases.id, id))
-    .returning();
+    .where(eq(leases.id as any, id))
+    .returning() as any[];
 
   if (result.length === 0) return c.json({ error: 'Lease not found' }, 404);
   return c.json(result[0]);
+});
+
+app.delete('/:id', async (c) => {
+  const id = Number(c.req.param('id'));
+  if (isNaN(id)) return c.json({ error: 'Invalid ID' }, 400);
+
+  const db = getDb(c);
+  const result = await db.delete(leases as any).where(eq(leases.id as any, id)).returning() as any[];
+
+  if (result.length === 0) return c.json({ error: 'Lease not found' }, 404);
+  return c.json({ message: 'Lease deleted', id });
 });
 
 export default app;
