@@ -1,4 +1,5 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
@@ -13,13 +14,18 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+    "baseUrl": ".",
     "plugins": [
       {
         "name": "next"
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@leasy/db": ["../../libs/db/src/index.ts"],
+      "@leasy/validators": ["../../libs/validators/src/index.ts"],
+      "@leasy/config": ["../../libs/config/src/index.ts"],
+      "@leasy/domain": ["../../libs/domain/src/index.ts"]
     }
   },
   "include": [
