@@ -9,6 +9,5 @@ test('dashboard navigation', async ({ page }) => {
   await page.goto('/');
 
   // Expect to be redirected to Clerk sign-in or dashboard
-  // Just checking if the page loads without error for now
-  await expect(page).toHaveTitle(/Leasy|Sign in/);
+  await expect(page).toHaveURL(/.*(sign-in|dashboard).*/);
 });
