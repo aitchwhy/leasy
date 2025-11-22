@@ -30,6 +30,17 @@ app.get('/', async (c) => {
   return c.json(result);
 });
 
+app.get('/:id', async (c) => {
+  const id = Number(c.req.param('id'));
+  if (isNaN(id)) return c.json({ error: 'Invalid ID' }, 400);
+
+  const db = getDb(c);
+  const result = await db.select().from(leases as any).where(eq(leases.id as any, id));
+
+  if (result.length === 0) return c.json({ error: 'Lease not found' }, 404);
+  return c.json(result[0]);
+});
+
 app.post('/', zValidator('json', createLeaseSchema), async (c) => {
   const data = c.req.valid('json');
   const db = getDb(c);

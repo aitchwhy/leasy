@@ -15,6 +15,17 @@ app.get('/', async (c) => {
   return c.json(result);
 });
 
+app.get('/:id', async (c) => {
+  const id = Number(c.req.param('id'));
+  if (isNaN(id)) return c.json({ error: 'Invalid ID' }, 400);
+
+  const db = getDb(c);
+  const result = await db.select().from(tenants as any).where(eq(tenants.id as any, id));
+
+  if (result.length === 0) return c.json({ error: 'Tenant not found' }, 404);
+  return c.json(result[0]);
+});
+
 app.post('/', zValidator('json', createTenantSchema), async (c) => {
   const data = c.req.valid('json');
   const db = getDb(c);
