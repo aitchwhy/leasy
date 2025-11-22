@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "wrangler dev src/index.ts",
-    "deploy": "wrangler deploy --minify src/index.ts"
+    "build": "wrangler deploy --dry-run --minify src/index.ts",
+    "deploy": "wrangler deploy --minify src/index.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@clerk/backend": "^1.0.0",
@@ -13,6 +15,7 @@
     "@leasy/db": "workspace:*",
     "@leasy/domain": "workspace:*",
     "@leasy/validators": "workspace:*",
+    "drizzle-orm": "^0.44.7",
     "hono": "^4.10.6"
   },
   "devDependencies": {
