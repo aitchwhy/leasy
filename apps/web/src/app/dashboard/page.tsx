@@ -4,23 +4,23 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api';
 
 export default function DashboardPage() {
-  const { data: tenants } = useQuery<any[]>({
+  const { data: tenants } = useQuery<unknown[]>({
     queryKey: ['tenants'],
     queryFn: () => apiClient.get('/tenants'),
   });
 
-  const { data: leases } = useQuery<any[]>({
+  const { data: leases } = useQuery<{ isActive: boolean }[]>({
     queryKey: ['leases'],
     queryFn: () => apiClient.get('/leases'),
   });
 
-  const { data: invoices } = useQuery<any[]>({
+  const { data: invoices } = useQuery<{ status: string }[]>({
     queryKey: ['invoices'],
     queryFn: () => apiClient.get('/invoices'),
   });
 
-  const activeLeasesCount = leases?.filter((l: any) => l.isActive).length || 0;
-  const pendingInvoicesCount = invoices?.filter((i: any) => i.status === 'DRAFT' || i.status === 'ISSUED').length || 0;
+  const activeLeasesCount = leases?.filter((l) => l.isActive).length || 0;
+  const pendingInvoicesCount = invoices?.filter((i) => i.status === 'DRAFT' || i.status === 'ISSUED').length || 0;
 
   return (
     <div>

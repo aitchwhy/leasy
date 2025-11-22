@@ -26,7 +26,7 @@ async function fetcher<T>(path: string, options: FetchOptions = {}): Promise<T> 
 
 export const apiClient = {
   get: <T>(path: string, options?: FetchOptions) => fetcher<T>(path, { ...options, method: 'GET' }),
-  post: <T>(path: string, data: any, options?: FetchOptions) => fetcher<T>(path, { ...options, method: 'POST', body: JSON.stringify(data) }),
-  put: <T>(path: string, data: any, options?: FetchOptions) => fetcher<T>(path, { ...options, method: 'PUT', body: JSON.stringify(data) }),
+  post: <T>(path: string, data: unknown, options?: FetchOptions) => fetcher<T>(path, { ...options, method: 'POST', body: JSON.stringify(data) }),
+  put: <T>(path: string, data: unknown, options?: FetchOptions) => fetcher<T>(path, { ...options, method: 'PUT', body: JSON.stringify(data) }),
   delete: <T>(path: string, options?: FetchOptions) => fetcher<T>(path, { ...options, method: 'DELETE' }),
 };

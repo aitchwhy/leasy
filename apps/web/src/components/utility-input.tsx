@@ -1,12 +1,12 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { useForm, UseFormRegister, FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api';
 import { useAuth } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 const readingSchema = z.object({
@@ -21,16 +21,32 @@ const bulkReadingSchema = z.object({
 
 type BulkReadingFormValues = z.infer<typeof bulkReadingSchema>;
 
+type Meter = {
+  id: number;
+  type: string;
+};
+
+type UnitWithMeters = {
+  id: number;
+  unitNumber: string;
+  buildingName: string;
+  meters: Meter[];
+};
+
+type FlatMeter = Meter & {
+  unitName: string;
+};
+
 export function UtilityInput() {
   const { getToken } = useAuth();
   // const router = useRouter();
   // const queryClient = useQueryClient();
 
-  const { data: units, isLoading } = useQuery({
+  const { data: units, isLoading } = useQuery<UnitWithMeters[]>({
     queryKey: ['units-with-meters'],
     queryFn: async () => {
       const token = await getToken();
-      return apiClient.get<{ id: number, unitNumber: string, buildingName: string, meters: { id: number, type: string }[] }[]>('/api/units', { token });
+      return apiClient.get<UnitWithMeters[]>('/api/units', { token });
     },
   });
 
@@ -41,16 +57,10 @@ export function UtilityInput() {
     },
   });
 
-  // Pre-populate fields when units load
-  // This is a bit tricky with useFieldArray and async data.
-  // For now, we'll just render inputs for each meter found in the units.
-  // But to use useFieldArray properly, we should append them.
-  // Alternatively, we can just map over units and register inputs dynamically.
-
   const mutation = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: BulkReadingFormValues) => {
       const token = await getToken();
-      return apiClient.post('/utilities/readings', data, { token });
+      return apiClient.post('/utilities/readings', data.readings, { token });
     },
     onSuccess: () => {
       toast.success('Readings submitted successfully');
@@ -76,22 +86,13 @@ export function UtilityInput() {
             <h3 className="text-lg font-medium text-gray-900">{unit.buildingName} - {unit.unitNumber}</h3>
             <div className="mt-2 grid grid-cols-1 gap-4 md:grid-cols-2">
               {unit.meters.map((meter) => {
-                 // We need to find if this meter is already in fields, if not we can't easily use useFieldArray for static list.
-                 // Instead, let's just use register with a constructed name or handle it manually.
-                 // But useFieldArray is for dynamic lists. Here the list is static based on units.
-                 // So we can just iterate and register `readings.${index}.meterId` etc.
-                 // But we need a flat list of meters to map to indices.
                  return (
                     <div key={meter.id} className="flex items-center space-x-4">
                         <span className="w-20 text-sm font-medium text-gray-700">{meter.type}</span>
                         <input
                             type="hidden"
-                            {...register(`readings.${meter.id}.meterId` as any, { value: meter.id })}
+                            {...register(`readings.${meter.id}.meterId` as const, { value: meter.id })}
                         />
-                        {/*
-                           Hack: using meter.id as index is risky if ids are sparse.
-                           Better: Flatten the meters first.
-                        */}
                     </div>
                  )
               })}
@@ -99,11 +100,6 @@ export function UtilityInput() {
           </div>
         ))}
       </div>
-      {/*
-        Refactoring to a better approach:
-        1. Flatten units -> meters.
-        2. Render list of meters.
-      */}
       <MeterList units={units || []} register={register} errors={errors} />
 
       <div className="flex justify-end">
@@ -119,9 +115,9 @@ export function UtilityInput() {
   );
 }
 
-function MeterList({ units, register, errors }: { units: any[], register: any, errors: any }) {
+function MeterList({ units, register }: { units: UnitWithMeters[], register: UseFormRegister<BulkReadingFormValues>, errors: FieldErrors<BulkReadingFormValues> }) {
     // Flatten meters
-    const meters = units.flatMap(u => u.meters.map((m: any) => ({ ...m, unitName: `${u.buildingName} ${u.unitNumber}` })));
+    const meters: FlatMeter[] = units.flatMap(u => u.meters.map((m) => ({ ...m, unitName: `${u.buildingName} ${u.unitNumber}` })));
     const today = new Date().toISOString().split('T')[0];
 
     return (
