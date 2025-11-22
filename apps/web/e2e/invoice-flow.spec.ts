@@ -1,4 +1,4 @@
-import { test, expect, request } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 test.describe('Invoice Generation Flow (API)', () => {
   test('should generate invoices correctly via API', async ({ request }) => {
@@ -32,7 +32,7 @@ test.describe('Invoice Generation Flow (API)', () => {
     // Actually, verify-invoice-logic.ts created units directly in DB.
     // If DB is empty, we have a problem.
     // But we can try to use the first unit if available.
-    let unitId = units[0]?.id;
+    const unitId = units[0]?.id;
 
     // If no units, we can't test.
     // Ideally we should seed the DB.
@@ -70,8 +70,11 @@ test.describe('Invoice Generation Flow (API)', () => {
 
     // 4. Input Utility Readings
     // We need meters for the unit.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const unitWithMeters = units.find((u: any) => u.id === unitId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const elecMeter = unitWithMeters.meters.find((m: any) => m.type === 'ELECTRICITY');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const waterMeter = unitWithMeters.meters.find((m: any) => m.type === 'WATER');
 
     if (elecMeter && waterMeter) {
@@ -127,7 +130,13 @@ test.describe('Invoice Generation Flow (API)', () => {
     if (generated.count > 0) {
         const invoice = generated.invoices[0];
         expect(invoice.totalAmountKrw).toBeDefined();
-        // We can assert specific values if we want, but ensuring it generates is a good start.
+    } else {
+        console.log('No new invoices generated (likely already exist)');
+        // Fetch existing invoices to verify
+        const listRes = await request.get(`${apiBase}/invoices`, { headers });
+        expect(listRes.ok()).toBeTruthy();
+        const list = await listRes.json();
+        expect(list.length).toBeGreaterThan(0);
     }
   });
 });
