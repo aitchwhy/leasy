@@ -4,7 +4,7 @@ type FetchOptions = RequestInit & {
   token?: string | null;
 };
 
-export async function apiClient<T>(path: string, options: FetchOptions = {}): Promise<T> {
+async function fetcher<T>(path: string, options: FetchOptions = {}): Promise<T> {
   const { token, headers, ...rest } = options;
 
   const res = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, {
@@ -23,3 +23,10 @@ export async function apiClient<T>(path: string, options: FetchOptions = {}): Pr
 
   return res.json();
 }
+
+export const apiClient = {
+  get: <T>(path: string, options?: FetchOptions) => fetcher<T>(path, { ...options, method: 'GET' }),
+  post: <T>(path: string, data: any, options?: FetchOptions) => fetcher<T>(path, { ...options, method: 'POST', body: JSON.stringify(data) }),
+  put: <T>(path: string, data: any, options?: FetchOptions) => fetcher<T>(path, { ...options, method: 'PUT', body: JSON.stringify(data) }),
+  delete: <T>(path: string, options?: FetchOptions) => fetcher<T>(path, { ...options, method: 'DELETE' }),
+};
