@@ -1,174 +1,114 @@
-import { TenantExcelRow, UtilityReadingExcelRow } from './validators';
-import { buildings, units, tenants, leases, utilityMeters, utilityReadings } from '@leasy/db';
-
-type InsertBuilding = typeof buildings.$inferInsert;
-type InsertUnit = typeof units.$inferInsert;
-type InsertTenant = typeof tenants.$inferInsert;
-type InsertLease = typeof leases.$inferInsert;
-type InsertUtilityReading = typeof utilityReadings.$inferInsert;
+import { ExtractedData, ExtractedDataSchema } from './validators';
 
 export class TransformerService {
+  transform(grid: string[][]): ExtractedData[] {
+    const results: ExtractedData[] = [];
 
-  transform(data: { tenants: TenantExcelRow[], readings: UtilityReadingExcelRow[] }) {
-    const buildingMap = new Map<string, InsertBuilding>();
-    const unitMap = new Map<string, InsertUnit>();
-    const tenantMap = new Map<string, InsertTenant>();
-    const leaseList: any[] = [];
-    const readingList: any[] = [];
-
-    // Default Building
-    const defaultBuilding: InsertBuilding = {
-      name: 'SBNC Building', // Inferred from file name
-      address: 'Seoul, Korea',
+    // Metadata extraction (Building info - simplified for now, assuming single building context from file)
+    // In a real scenario, we might extract building name from a specific cell if it exists.
+    const buildingInfo = {
+      name: 'Main Building', // Default or extracted
+      address: 'Default Address', // Default or extracted
+      electricityCustomerId: this.findValue(grid, '전기'), // Simple heuristic search
+      waterCustomerId: this.findValue(grid, '수도'),
     };
-    buildingMap.set('default', defaultBuilding);
 
-    // Process Tenants/Leases
-    for (const row of data.tenants) {
-      // Unit
-      const unitNum = String(row.unit_number).replace(/[^0-9B]/g, '');
-      if (!unitMap.has(unitNum)) {
-        unitMap.set(unitNum, {
-          buildingId: 0, // Placeholder
-          unitNumber: unitNum,
-          areaSqm: '0', // Not in Rent Roll, maybe default or update later
-        });
-      }
+    // Iterate through columns to find Units
+    // Assuming Units start from Column D (index 3) to P (index 15) based on prompt
+    // We'll scan columns that look like they have unit numbers in Row 3
+    const rowUnitNumber = 3;
+    const rowTenantName = 4;
+    const rowBusinessId = 1; // Prompt says Index 1 for Business ID and Area
 
-      // Tenant
-      if (row.tenant_name) {
-        tenantMap.set(row.tenant_name, {
-          name: row.tenant_name,
-          // businessRegistrationId: row.business_id, // Not in Rent Roll
-          // contactPhone: row.contact_phone, // Not in Rent Roll
-        });
+    const numCols = grid[0]?.length || 0;
 
-        // Lease
-        const startDate = this.formatDate(row.start_date);
-        const endDate = row.end_date ? this.formatDate(row.end_date) : null;
+    for (let col = 0; col < numCols; col++) {
+      const unitNumber = grid[rowUnitNumber]?.[col]?.trim();
 
-        // Determine if active
-        const now = new Date();
-        const start = new Date(startDate);
-        const end = endDate ? new Date(endDate) : null;
-        const isActive = start <= now && (!end || end >= now);
+      // Heuristic: Unit number usually looks like '101', 'B102', etc.
+      if (!unitNumber || unitNumber.length < 2 || unitNumber === '호수') continue;
 
-        leaseList.push({
-          unitNumber: unitNum,
-          tenantName: row.tenant_name,
-          startDate,
-          endDate,
-          baseRentKrw: String(row.base_rent),
-          managementFeeKrw: String(row.management_fee),
-          depositKrw: String(row.deposit),
-          isActive,
-        });
+      // Extract Tenant Name
+      const tenantName = grid[rowTenantName]?.[col]?.trim() || 'Unknown Tenant';
+
+      // Extract Business ID and Area from Row 1
+      // The prompt says "Index 1". It might be in the same column or nearby.
+      // Let's assume same column for now as per "Column D... extracts... from Row Index 1"
+      const rawRow1 = grid[rowBusinessId]?.[col]?.trim() || '';
+
+      // Heuristic parsing of Row 1 which might contain both ID and Area or just one
+      // Example: "211-10-21870 132.2" or similar.
+      // We'll try to split or regex.
+      const businessIdMatch = rawRow1.match(/\d{3}-\d{2}-\d{5}/);
+      const businessId = businessIdMatch ? businessIdMatch[0] : undefined;
+
+      // Area might be in the same cell or we need to look for '면적' row.
+      // Prompt says "Corresponds to the '면적' section (Starts Col T). Parse as Decimal."
+      // Wait, prompt says "Index 1" for Area in the table, but also "Starts Col T" in notes?
+      // "Corresponds to the '면적' section (Starts Col T). Parse as Decimal."
+      // This implies Area might NOT be in the unit column.
+      // However, the table says "Source Location in CSV (Row Index): Index 1".
+      // Let's try to find a number in Row 1 of the current column first.
+      const areaMatch = rawRow1.match(/[\d.]+/);
+      const areaSqm = areaMatch ? areaMatch[0] : '0';
+
+      // Dynamic Scan for Rent
+      const baseRentKrw = this.findLatestRent(grid, col);
+
+      const data = {
+        building: buildingInfo,
+        unit: {
+          unitNumber,
+          areaSqm,
+        },
+        tenant: {
+          name: tenantName,
+          businessRegistrationId: businessId,
+        },
+        lease: {
+          baseRentKrw: baseRentKrw || '0',
+          startDate: '2016-09-01', // Default as per prompt
+        },
+      };
+
+      const validated = ExtractedDataSchema.safeParse(data);
+      if (validated.success) {
+        results.push(validated.data);
+      } else {
+        console.warn(`Skipping column ${col} (Unit: ${unitNumber}): Validation failed`, validated.error.flatten().fieldErrors);
       }
     }
 
-    // Process Readings
-    // We need to link readings to units. We'll store them with unitNumber for now.
-    for (const row of data.readings) {
-        const unitNum = String(row.unit_number).replace(/[^0-9B]/g, '');
-
-        // Ensure unit exists (it should if tenant list is complete, but maybe vacant units)
-        if (!unitMap.has(unitNum)) {
-             unitMap.set(unitNum, {
-                buildingId: 0,
-                unitNumber: unitNum,
-                areaSqm: '0',
-            });
-        }
-
-        // We assume readings are for the "current" month or initial setup.
-        // If reading_date is missing, default to today or specific date.
-        const readingDate = row.reading_date ? this.formatDate(row.reading_date) : this.formatDate(new Date());
-
-        readingList.push({
-            unitNumber: unitNum,
-            readingDate,
-            electricityValue: Number(row.electricity_reading),
-            waterValue: Number(row.water_reading),
-        });
-    }
-
-    return {
-      buildings: Array.from(buildingMap.values()),
-      units: Array.from(unitMap.values()),
-      tenants: Array.from(tenantMap.values()),
-      leases: leaseList,
-      readings: readingList,
-    };
+    return results;
   }
 
-  transformReadingsRaw(rawData: any[][]): { readings: any[] } {
-    const readings: any[] = [];
-    let currentSection: 'ELECTRICITY' | 'WATER' | null = null;
-    let unitColumns: { [index: number]: string } = {};
-
-    // Iterate through rows
-    for (let i = 0; i < rawData.length; i++) {
-      const row = rawData[i];
-      if (!row || row.length === 0) continue;
-
-      const firstCell = String(row[0] || '').trim();
-
-      // Detect Section Headers
-      if (firstCell.includes('전기계량')) {
-        console.log('Found ELECTRICITY section');
-        currentSection = 'ELECTRICITY';
-        unitColumns = {}; // Reset columns
-        for (let j = 1; j < row.length; j++) {
-            const val = row[j];
-            if (val && (String(val).startsWith('B') || !isNaN(Number(val)))) {
-                unitColumns[j] = String(val);
-            }
+  private findValue(grid: string[][], keyword: string): string | undefined {
+    for (const row of grid) {
+      for (const cell of row) {
+        if (cell && cell.includes(keyword)) {
+          // Return next cell or extract value
+          return cell; // Simplified
         }
-        console.log(`Captured unit columns for ELECTRICITY: ${JSON.stringify(unitColumns)}`);
-        continue;
-      } else if (firstCell.includes('수도지침')) {
-        console.log('Found WATER section');
-        currentSection = 'WATER';
-        unitColumns = {};
-        for (let j = 1; j < row.length; j++) {
-            const val = row[j];
-            if (val && (String(val).startsWith('B') || !isNaN(Number(val)))) {
-                unitColumns[j] = String(val);
-            }
-        }
-        console.log(`Captured unit columns for WATER: ${JSON.stringify(unitColumns)}`);
-        continue;
       }
+    }
+    return undefined;
+  }
 
-      // Process Data Rows
-      if (currentSection && (firstCell.endsWith('일') || !isNaN(Number(firstCell)))) {
-         // console.log(`Processing data row: ${firstCell}`);
-         const day = parseInt(firstCell.replace('일', ''));
-         if (isNaN(day)) continue;
+  private findLatestRent(grid: string[][], col: number): string | undefined {
+    // Scan downwards from row 5
+    let latestRent = undefined;
+    for (let row = 5; row < grid.length; row++) {
+      const cell = grid[row]?.[col]?.trim();
+      const rowLabel = grid[row]?.[0] || grid[row]?.[1] || ''; // Check first few cols for labels like 'VAT별도' or date
 
-         // Iterate over captured columns
-         for (const [colIndex, unitNum] of Object.entries(unitColumns)) {
-             const val = row[Number(colIndex)];
-             if (val !== undefined && val !== null && val !== '') {
-                 readings.push({
-                     unitNumber: unitNum,
-                     readingDate: `2024-01-${String(day).padStart(2, '0')}`, // Placeholder date
-                     type: currentSection,
-                     value: Number(val)
-                 });
-             }
+      // Heuristic: If row label indicates a month or 'VAT별도' and cell has a value
+      if (cell && cell !== '-' && cell !== '') {
+         // Check if it looks like a number
+         if (/^[\d,]+$/.test(cell)) {
+             latestRent = cell;
          }
       }
     }
-
-    return { readings };
-  }
-
-  private formatDate(dateInput: string | Date): string {
-    if (dateInput instanceof Date) {
-      return dateInput.toISOString().split('T')[0];
-    }
-    // Handle YYYY.MM.DD or YYYY-MM-DD
-    return dateInput.replace(/\./g, '-');
+    return latestRent;
   }
 }

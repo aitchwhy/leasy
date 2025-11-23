@@ -8,8 +8,10 @@
   "dependencies": {
     "@leasy/db": "workspace:*",
     "@neondatabase/serverless": "^1.0.2",
+    "@types/papaparse": "^5.5.0",
     "dotenv": "^16.3.1",
     "drizzle-orm": "^0.44.7",
+    "papaparse": "^5.5.3",
     "xlsx": "^0.18.5",
     "zod": "^3.22.4"
   }
