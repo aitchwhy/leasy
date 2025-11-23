@@ -6,6 +6,8 @@
   "dependencies": {
     "drizzle-orm": "^0.44.7",
     "@neondatabase/serverless": "^1.0.2",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "@leasy-temp/config": "workspace:*",
+    "postgres": "^3.4.4"
   }
 }
