@@ -4,17 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api';
 import { useAuth } from '@clerk/nextjs';
 import { useParams } from 'next/navigation';
-import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 
-const styles = StyleSheet.create({
-  page: { flexDirection: 'column', padding: 30 },
-  section: { margin: 10, padding: 10, flexGrow: 1 },
-  header: { fontSize: 24, marginBottom: 20 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 },
-  label: { fontSize: 12, color: 'gray' },
-  value: { fontSize: 12 },
-  total: { fontSize: 14, fontWeight: 'bold', marginTop: 10 },
-});
+
+
+import { InvoicePDF } from './InvoicePDF';
 
 interface InvoiceLineItem {
   description: string;
@@ -29,52 +23,14 @@ interface Invoice {
   dueDate: string;
   totalAmountKrw: string;
   status: string;
-  tenant?: { name: string };
+  tenant?: {
+    name: string;
+    businessRegistrationId?: string;
+  };
   unit?: { buildingName: string; unitNumber: string };
   lineItems?: InvoiceLineItem[];
 }
 
-const InvoicePDF = ({ invoice }: { invoice: Invoice }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      <View style={styles.section}>
-        <Text style={styles.header}>Invoice #{invoice.id}</Text>
-        <View style={styles.row}>
-          <Text style={styles.label}>Billing Period:</Text>
-          <Text style={styles.value}>{invoice.billingPeriod}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Issue Date:</Text>
-          <Text style={styles.value}>{invoice.issueDate}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Due Date:</Text>
-          <Text style={styles.value}>{invoice.dueDate}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Tenant:</Text>
-          <Text style={styles.value}>{invoice.tenant?.name}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Unit:</Text>
-          <Text style={styles.value}>{invoice.unit?.buildingName} {invoice.unit?.unitNumber}</Text>
-        </View>
-
-        <Text style={{ marginTop: 20, fontSize: 18 }}>Line Items</Text>
-        {invoice.lineItems?.map((item, index) => (
-          <View key={index} style={{ ...styles.row, borderBottomWidth: 1, borderBottomColor: '#eee', paddingBottom: 5, paddingTop: 5 }}>
-            <Text style={{ ...styles.value, flex: 2 }}>{item.description}</Text>
-            <Text style={{ ...styles.value, flex: 1, textAlign: 'right' }}>{Number(item.amountKrw).toLocaleString()} KRW</Text>
-          </View>
-        ))}
-
-        <View style={{ marginTop: 20, alignItems: 'flex-end' }}>
-          <Text style={styles.total}>Total: {Number(invoice.totalAmountKrw).toLocaleString()} KRW</Text>
-        </View>
-      </View>
-    </Page>
-  </Document>
-);
 
 export function InvoiceDetail() {
   const { id } = useParams();
