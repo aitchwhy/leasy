@@ -18,9 +18,18 @@ export class TransformerService {
     // We'll scan columns that look like they have unit numbers in Row 3
     const rowUnitNumber = 3;
     const rowTenantName = 4;
-    const rowBusinessId = 1; // Prompt says Index 1 for Business ID and Area
+    const rowBusinessId = 1;
 
-    const numCols = grid[0]?.length || 0;
+    // Calculate max columns from the first 10 rows to avoid issues with empty top rows
+    let numCols = 0;
+    for (let i = 0; i < Math.min(grid.length, 10); i++) {
+      if (grid[i] && grid[i].length > numCols) {
+        numCols = grid[i].length;
+      }
+    }
+
+    console.log(`Grid Dimensions: ${grid.length} rows, ${numCols} cols`);
+    console.log('First 5 rows:', grid.slice(0, 5));
 
     for (let col = 0; col < numCols; col++) {
       const unitNumber = grid[rowUnitNumber]?.[col]?.trim();

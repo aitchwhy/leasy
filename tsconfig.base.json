@@ -11,7 +11,7 @@
     "paths": {
       "@leasy/db": ["libs/db/src/index.ts"],
       "@leasy/validators": ["libs/validators/src/index.ts"],
-
+      "@leasy-temp/config": ["libs/config/src/index.ts"],
       "@leasy/domain": ["libs/domain/src/index.ts"]
     }
   },

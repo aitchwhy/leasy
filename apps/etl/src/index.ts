@@ -15,7 +15,7 @@ async function main() {
   console.log(`Reading CSV from: ${csvPath}`);
 
   try {
-    const grid = parser.parseCsv(csvPath);
+    const grid = parser.parse(csvPath);
     const extractedData = transformer.transform(grid);
 
     console.log(`Found ${extractedData.length} records to process.`);
